@@ -1,0 +1,76 @@
+Day 218/250:  Pyramid Transition Solution
+
+Problem Statement #756
+
+Problem Statement Explanation:
+
+We are stacking blocks to form a pyramid. Each block has a color which is a one-letter string. 
+We are allowed to place a block of color C on top of two adjacent blocks of colors A and B, if and only if the triple ABC is an allowed triple.
+We start with a bottom row of blocks represented by a string bottom. 
+We also have a list of allowed triples represented by a list of strings allowed. 
+Each triple is exactly 3 characters long.
+The goal is to determine if we can build the pyramid all the way to the top (a single block).
+
+Solution Approach:
+
+The problem can be modeled as a Depth First Search (DFS) exploration of all possible pyramid configurations.
+
+1. Pre-processing (Transition Map)
+First, we store the allowed triples in a HashMap. 
+The key is the pair of blocks on the lower level (e.g., "AB"), and the value is a list of all characters that can be placed on top of them (e.g., ['C', 'D']). 
+This allows for O(1) lookup during the backtracking process.
+
+2. Backtracking Strategy
+We build the pyramid row by row and block by block:
+Horizontal Step: We pick a pair of adjacent blocks in the currentLevel and try all possible characters to place above them in the nextLevel.
+Vertical Step: Once a full nextLevel is completed (its length is exactly currentLevel.length - 1), we recursively attempt to build the level above it.
+Base Case: If the currentLevel has a length of 1, we have successfully reached the top of the pyramid.
+
+3. Memoization
+To avoid redundant calculations, we use a HashSet to store failed "levels." If we have already determined that a specific string cannot form a valid pyramid, we skip it if it appears again in a different branch of the recursion.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public boolean pyramidTransition(String bottom, List<String> allowed) {
+        Map<String, List<Character>> map = new HashMap<>();
+        for (String s : allowed) {
+            String key = s.substring(0, 2);
+            map.computeIfAbsent(key, k -> new ArrayList<>()).add(s.charAt(2));
+        }
+        
+        return backtrack(bottom, "", map, new HashSet<>());
+    }
+
+    private boolean backtrack(String currentLevel, String nextLevel, 
+                              Map<String, List<Character>> map, Set<String> memo) {
+        if (currentLevel.length() == 1) return true;
+        
+        if (nextLevel.length() == currentLevel.length() - 1) {
+            if (memo.contains(nextLevel)) return false;
+            if (backtrack(nextLevel, "", map, memo)) return true;
+            memo.add(nextLevel);
+            return false;
+        }
+
+        int i = nextLevel.length();
+        String key = currentLevel.substring(i, i + 2);
+        
+        if (map.containsKey(key)) {
+            for (char c : map.get(key)) {
+                if (backtrack(currentLevel, nextLevel + c, map, memo)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+}
+
+Complexity:
+Time Complexity:	O(A^L2)
+Space Complexity: O(L^2)
+
