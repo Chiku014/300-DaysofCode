@@ -1,0 +1,74 @@
+Day 219/250: Magic Squares In Grid
+
+Problem Statement #840
+
+Problem Statement Explanation:
+
+A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9 such that each row, column, and both diagonals all have the same sum.
+Given a grid of integers, return the count of 3 x 3 "magic square" subgrids that are contained within the larger grid.
+
+Solution Approach:
+
+To solve this efficiently, we slide a 3×3 window across the entire grid and validate each subgrid.
+
+1. The "Center is 5" Property
+In any 3×3 magic square containing numbers 1 through 9, the center element must always be 5. This is because the total sum of numbers 1-9 is 45. Since there are three rows, each row must sum to 45/3=15. The center element is involved in four sums (row, column, and two diagonals), leading to the mathematical necessity that it must be 5.
+
+2. Validation Steps
+For every 3×3 subgrid:
+
+Range & Uniqueness: Ensure the grid contains only numbers from 1 to 9 and that each number appears exactly once.
+
+Sum Checks: * Each of the 3 rows must sum to 15.
+Each of the 3 columns must sum to 15.
+Both diagonals must sum to 15.
+
+Here's the code:
+
+class Solution {
+    public int numMagicSquaresInside(int[][] grid) {
+        int count = 0;
+        int rows = grid.length;
+        int cols = grid[0].length;
+
+        for (int r = 0; r <= rows - 3; r++) {
+            for (int c = 0; c <= cols - 3; c++) {
+                if (isMagic(grid, r, c)) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private boolean isMagic(int[][] grid, int r, int c) {
+        if (grid[r + 1][c + 1] != 5) return false;
+
+        boolean[] seen = new boolean[10];
+        for (int i = r; i < r + 3; i++) {
+            for (int j = c; j < c + 3; j++) {
+                int num = grid[i][j];
+                if (num < 1 || num > 9 || seen[num]) return false;
+                seen[num] = true;
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (grid[r + i][c] + grid[r + i][c + 1] + grid[r + i][c + 2] != 15) return false;
+            if (grid[r][c + i] + grid[r + 1][c + i] + grid[r + 2][c + i] != 15) return false;
+        }
+
+        if (grid[r][c] + grid[r + 1][c + 1] + grid[r + 2][c + 2] != 15) return false;
+        if (grid[r][c + 2] + grid[r + 1][c + 1] + grid[r + 2][c] != 15) return false;
+
+        return true;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(R×C)
+Space Complexity: O(1)
+
+
+
