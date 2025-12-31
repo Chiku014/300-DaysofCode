@@ -1,0 +1,91 @@
+Day 220/250:  Last Day Where You Can Still Cross
+
+Problem Statement #1970
+
+Problem Statement Explanation:
+
+You are given a 1-based binary matrix of size row x col which is initially, on day 0, filled with all 0s (land). 
+You are also given an array cells where cells[i] = [ri, ci] represents that on the i-th day, the cell at row ri and column ci (1-indexed) turns into 1 (water).
+You want to find the last day that it is possible to walk from the top to the bottom by only walking on land cells. 
+You can move up, down, left, and right.
+
+Solution Approach:
+
+The problem exhibits a monotonic property: if it is possible to cross on day D, it is also possible to cross on any day before D. Conversely, if it is impossible on day D, it remains impossible for all days after D. 
+This allows us to use Binary Search on the Answer.
+
+Step-by-Step Logic:
+Search Range: The answer lies between 1 and cells.length.
+Binary Search: For a chosen mid day:
+Construct a grid and mark all cells from day 1 to day mid as water.
+Perform a BFS or DFS starting from all land cells in the first row.
+If any cell in the last row is reachable, then mid is a valid day. 
+We try to find a later day by moving our search range to the right (left = mid + 1).
+If no path exists, we must look for an earlier day (right = mid - 1).
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    private int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+    public int latestDayToCross(int row, int col, int[][] cells) {
+        int left = 1, right = cells.length;
+        int ans = 0;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (canCross(row, col, cells, mid)) {
+                ans = mid; // Try for a later day
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return ans;
+    }
+
+    private boolean canCross(int row, int col, int[][] cells, int day) {
+        int[][] grid = new int[row][col];
+        // Mark cells as water for the given day
+        for (int i = 0; i < day; i++) {
+            grid[cells[i][0] - 1][cells[i][1] - 1] = 1;
+        }
+
+        Queue<int[]> queue = new LinkedList<>();
+        // Add all land cells in the first row to the queue
+        for (int c = 0; c < col; c++) {
+            if (grid[0][c] == 0) {
+                queue.offer(new int[]{0, c});
+                grid[0][c] = 1; // Mark as visited to save space
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            int[] curr = queue.poll();
+            int r = curr[0], c = curr[1];
+
+            if (r == row - 1) return true; // Reached the bottom row
+
+            for (int[] d : directions) {
+                int nr = r + d[0], nc = c + d[1];
+                if (nr >= 0 && nr < row && nc >= 0 && nc < col && grid[nr][nc] == 0) {
+                    grid[nr][nc] = 1; // Mark visited
+                    queue.offer(new int[]{nr, nc});
+                }
+            }
+        }
+        return false;
+    }
+}
+
+Complexity:
+
+Time Complexity: O((R⋅C)⋅log(R⋅C))
+Space Complexity: O(R⋅C)
+
+
+
+
+
