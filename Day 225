@@ -1,0 +1,71 @@
+Day 225/250: Maximum Matrix Sum
+
+Problem Statement #1975
+
+Problem Statement Explanation:
+
+You are given an n x n integer matrix. You can do the following operation any number of times:
+Choose any two adjacent elements of matrix and multiply each of them by -1.
+Two elements are considered adjacent if they share a border (up, down, left, or right).
+Your goal is to maximize the summation of the matrix's elements. Return the maximum sum of the matrix's elements using the operation above.
+
+Solution Approach:
+
+The Key Insight
+The most important observation is that by performing the operation repeatedly, you can "move" a negative sign from one cell to any other cell in the matrix.
+Pairing Negatives: If you have two negative numbers, you can move them next to each other and flip them both to positive.
+
+Even vs. Odd: * If there is an even number of negative signs, you can eventually pair them all up and eliminate every single negative sign in the matrix.
+If there is an odd number of negative signs, you will always be left with exactly one negative sign.
+
+Strategy: * To maximize the sum when one negative sign must remain, we should ensure that the negative sign is placed on the element with the smallest absolute value.
+If there is at least one 0 in the matrix, an odd number of negatives can be moved to the 0, effectively making the entire matrix positive (since −0=0).
+
+Implementation Steps
+Traverse the entire matrix.
+
+Calculate the sum of the absolute values of all elements.
+Keep track of the minimum absolute value found in the matrix.
+Count the total number of negative elements.
+If the count of negatives is even, return the total sum.
+If the count of negatives is odd, subtract twice the minimum absolute value from the total sum (to account for changing that smallest value from positive to negative).
+
+Here's the code:
+
+class Solution {
+    public long maxMatrixSum(int[][] matrix) {
+        long totalSum = 0;
+        int minAbsValue = Integer.MAX_VALUE;
+        int negativeCount = 0;
+
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[0].length; j++) {
+                int val = matrix[i][j];
+                int absVal = Math.abs(val);
+                
+                totalSum += absVal;
+                minAbsValue = Math.min(minAbsValue, absVal);
+                
+                if (val < 0) {
+                    negativeCount++;
+                }
+            }
+        }
+
+        if (negativeCount % 2 != 0) {
+            return totalSum - (2L * minAbsValue);
+        }
+
+        return totalSum;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N^2)
+space Complexity: O(1)
+
+
+
+
+
