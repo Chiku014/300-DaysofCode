@@ -1,0 +1,76 @@
+Day 226/250:  Maximum Level Sum of a Binary Tree
+
+Problem Statement #1161
+
+Problem Statement Explantion:
+
+Given the root of a binary tree, the level of its root is 1, the level of its children is 2, and so on.
+Return the smallest level number x such that the sum of all the values of nodes at level x is maximal.
+
+Example
+Input: root = [1,7,0,7,-8,null,null]
+Output: 2
+
+Explanation: * Level 1 sum = 1.
+
+Level 2 sum = 7 + 0 = 7.
+Level 3 sum = 7 + (-8) = -1.
+Level 2 has the maximum sum of 7.
+
+Solution Approach:
+
+To find the sum of nodes at each level, a Level Order Traversal (BFS) is the most intuitive approach.
+Level Tracking: Use a Queue to store nodes. We process the tree level by level by capturing the queue.size() at the start of each iteration.
+Sum Calculation: For each level, iterate through all nodes belonging to that level, add their values to a levelSum, and add their children to the queue for the next level.
+
+Maximum Tracking:
+Initialize maxSum to Double.NEGATIVE_INFINITY to account for trees where all level sums are negative.
+If the current levelSum is strictly greater than maxSum, update maxSum and record the current level index.
+Tie-Breaking: Because we only update the maxLevel when we find a sum strictly greater than the previous maximum, we automatically satisfy the requirement to return the smallest level index in case of a tie.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public int maxLevelSum(TreeNode root) {
+        if (root == null) return 0;
+
+        double maxSum = Double.NEGATIVE_INFINITY;
+        int maxLevel = 1;
+        int currentLevel = 1;
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            long levelSum = 0;
+
+            for (int i = 0; i < levelSize; i++) {
+                TreeNode currentNode = queue.poll();
+                levelSum += currentNode.val;
+
+                if (currentNode.left != null) queue.offer(currentNode.left);
+                if (currentNode.right != null) queue.offer(currentNode.right);
+            }
+
+            if (levelSum > maxSum) {
+                maxSum = (double) levelSum;
+                maxLevel = currentLevel;
+            }
+
+            currentLevel++;
+        }
+
+        return maxLevel;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N)
+Space Complexity: O(W)
+
+
+
