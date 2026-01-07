@@ -1,0 +1,67 @@
+Day 227/250: Maximum Product of Splitted Binary Tree
+
+Problem Statement #1339
+
+Problem Statement Explanation:
+
+Given the root of a binary tree, split the binary tree into two subtrees by removing one edge such that the product of the sums of the subtrees is maximized.
+Return the maximum product of the sums of the two subtrees. Since the answer may be very large, return it modulo 10^9+7.
+Note: You need to maximize the product before taking the modulo.
+
+Solution Approach:
+
+To solve this problem efficiently, we use a two-pass DFS (Depth-First Search) strategy:
+
+1. Calculate Subtree Sums
+We need to know the total sum of the entire tree and the sum of every possible subtree. We perform a post-order traversal:
+For any node, its subtree sum is: node.val + sum(left_child) + sum(right_child).
+We store these sums in a list to evaluate them later.
+
+2. Find the Maximum Product
+Once we have the totalSum, removing any edge results in two values:
+S: The sum of the subtree below the removed edge.
+(totalSum−S): The sum of the remaining part of the tree.
+We iterate through all stored subtree sums and calculate S×(totalSum−S), keeping track of the maximum value found.
+
+3. Handle Large Numbers
+Because the product can exceed the range of a 32-bit integer, we use long for all calculations and only apply the modulo 10^9+7 at the final step.
+
+Here's the code:
+
+class Solution {
+    private List<Long> allSums = new ArrayList<>();
+
+    public int maxProduct(TreeNode root) {
+        long totalSum = calculateSubtreeSums(root);
+        long maxProd = 0;
+
+        for (long s : allSums) {
+            long currentProd = s * (totalSum - s);
+            maxProd = Math.max(maxProd, currentProd);
+        }
+
+        return (int) (maxProd % 1000000007);
+    }
+
+    private long calculateSubtreeSums(TreeNode node) {
+        if (node == null) return 0;
+
+        long leftSum = calculateSubtreeSums(node.left);
+        long rightSum = calculateSubtreeSums(node.right);
+
+        long currentSubtreeSum = leftSum + rightSum + node.val;
+        allSums.add(currentSubtreeSum);
+
+        return currentSubtreeSum;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N)
+Space Complexity: O(N)
+
+
+
+
+
