@@ -1,0 +1,63 @@
+Day 228/250: Max Dot Product of Two Subsequences
+
+Problem Statement #1458
+
+Problem Statement Explanation:
+
+Given two arrays nums1 and nums2, return the maximum dot product of non-empty subsequences of nums1 and nums2 with the same length.
+
+A subsequence of a array is a new array which is formed from the original array by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters.
+(i.e., [2,3,5] is a subsequence of [1,2,3,4,5] while [1,5,3] is not).
+
+Solution Approach:
+
+This problem is a variation of the Longest Common Subsequence (LCS) problem, solved using Dynamic Programming.
+
+Decision Matrix
+For every pair of elements nums1[i] and nums2[j], we have four choices to determine the maximum dot product at that point:
+Use both elements: Multiply nums1[i] and nums2[j] and add it to the maximum dot product found for the previous prefixes (dp[i-1][j-1]).
+Start fresh: Use only the product nums1[i] * nums2[j]. This is crucial if the previous cumulative products were negative.
+Skip nums1[i]: Take the best result found by ignoring the current element of the first array (dp[i-1][j]).
+Skip nums2[j]: Take the best result found by ignoring the current element of the second array (dp[i][j-1]).
+
+Implementation Logic
+We use a 2D DP table dp[m+1][n+1].
+We initialize the table with a very small value (e.g., −10^9) because the maximum dot product could be negative.
+
+The transition formula is:
+dp[i][j]=max(currentProd,currentProd+dp[i−1][j−1],dp[i−1][j],dp[i][j
+
+Here's the code:
+
+class Solution {
+    public int maxDotProduct(int[] nums1, int[] nums2) {
+        int m = nums1.length;
+        int n = nums2.length;
+        int[][] dp = new int[m + 1][n + 1];
+
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                dp[i][j] = -1000000000;
+            }
+        }
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                int currentProd = nums1[i - 1] * nums2[j - 1];
+                dp[i][j] = Math.max(currentProd, currentProd + dp[i - 1][j - 1]);
+                dp[i][j] = Math.max(dp[i][j], dp[i - 1][j]);
+                dp[i][j] = Math.max(dp[i][j], dp[i][j - 1]);
+            }
+        }
+
+        return dp[m][n];
+    }
+}
+
+Complexity:
+
+Time Complexity: O(m×n)
+Space Complexity: O(m×n)
+
+
+
