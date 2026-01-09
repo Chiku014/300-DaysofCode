@@ -1,0 +1,62 @@
+Day 229/250: Smallest Subtree with all the Deepest Nodes
+
+Problem Statement: #865
+
+Problem Statement Expplanation:
+
+Given the root of a binary tree, the depth of each node is the shortest distance to the root. 
+A node is considered deepest if it has the maximum possible depth in the entire tree.
+The goal is to return the node that is the Lowest Common Ancestor (LCA) of all these deepest nodes. 
+This means we want the smallest subtree that contains every node located at the maximum depth.
+
+Solution Approach:
+
+Instead of finding the maximum depth first and then searching for the LCA in a second pass, we use a post-order traversal (Bottom-Up) to solve it in one go.
+
+1. The Strategy
+We visit every node and ask its children for two pieces of information:
+Depth: How deep is the deepest node in your subtree?
+LCA Candidate: Based on what you found, which node is the current "best" subtree root?
+
+2. Decision Logic
+As we return back up the tree (post-order), we compare the depths of the left and right subtrees:
+Left Depth == Right Depth: This means the deepest nodes are spread across both sides. The current node is the "lowest" point where these paths meet, so it becomes the new LCA candidate.
+Left Depth > Right Depth: The deepest nodes are only in the left subtree. We ignore the right side and pass the left child's candidate up.
+Right Depth > Left Depth: The deepest nodes are only in the right subtree. We pass the right child's candidate up.
+
+3. Implementation Detail
+To keep the code concise and unique, we return an Object[] array where:
+index [0] is the TreeNode (LCA candidate).
+index [1] is the Integer (Depth).
+
+Here's the code:
+
+class Solution {
+    public TreeNode subtreeWithAllDeepest(TreeNode root) {
+        return (TreeNode) getDeepestInfo(root)[0];
+    }
+
+    private Object[] getDeepestInfo(TreeNode node) {
+        if (node == null) return new Object[]{null, 0};
+
+        Object[] lSide = getDeepestInfo(node.left);
+        Object[] rSide = getDeepestInfo(node.right);
+
+        int lDepth = (int) lSide[1];
+        int rDepth = (int) rSide[1];
+
+        if (lDepth == rDepth) {
+            return new Object[]{node, lDepth + 1};
+        }
+        
+        return lDepth > rDepth ? 
+            new Object[]{lSide[0], lDepth + 1} : 
+            new Object[]{rSide[0], rDepth + 1};
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N)
+Space Complexity:	O(H)
+
