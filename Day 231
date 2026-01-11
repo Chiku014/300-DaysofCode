@@ -1,0 +1,95 @@
+Day 231/250: Maximal Rectangle
+
+Problem Statement #85
+
+Problem Statement Explanation:
+
+Given a rows x cols binary matrix filled with 0's and 1's, find the largest rectangle containing only 1's and return its area.
+
+Input: matrix = [
+  ["1","0","1","0","0"],
+  ["1","0","1","1","1"],
+  ["1","1","1","1","1"],
+  ["1","0","0","1","0"]
+]
+Output: 6
+
+Solution Approach:
+
+The most efficient way to solve this problem is to treat each row as the base of a histogram. 
+By doing this, we can transform a 2D matrix problem into a series of 1D "Largest Rectangle in Histogram" problems.
+
+Steps:
+Iterate through each row: Maintain an array heights where heights[j] represents the number of consecutive 1s ending at the current row in column j.
+Update Heights: * If matrix[row][col] == '1', increment heights[col].
+If matrix[row][col] == '0', reset heights[col] to 0.
+
+Calculate Area: For every row, treat the heights array as a histogram and calculate the maximum area using a Monotonic Stack.
+Global Maximum: Keep track of the maximum area found across all rows.
+
+The Monotonic Stack Logic:
+We use a stack to keep track of the indices of the bars in increasing order of height. 
+When we encounter a bar shorter than the bar at the stack's top, we know the rectangle for the taller bar has reached its limit. 
+We pop the height and calculate the area using the width between the current index and the new stack top.
+
+Here's the code:
+
+class Solution {
+    public int maximalRectangle(char[][] matrix) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return 0;
+        }
+
+        int cols = matrix[0].length;
+        int[] heights = new int[cols];
+        int maxArea = 0;
+
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (matrix[i][j] == '1') {
+                    heights[j]++;
+                } else {
+                    heights[j] = 0;
+                }
+            }
+            maxArea = Math.max(maxArea, largestRectangleArea(heights));
+        }
+
+        return maxArea;
+    }
+    private int largestRectangleArea(int[] heights) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        stack.push(-1);
+        int maxArea = 0;
+
+        for (int i = 0; i < heights.length; i++) {
+            while (stack.peek() != -1 && heights[stack.peek()] >= heights[i]) {
+                int height = heights[stack.pop()];
+                int width = i - stack.peek() - 1;
+                maxArea = Math.max(maxArea, height * width);
+            }
+            stack.push(i);
+        }
+
+        while (stack.peek() != -1) {
+            int height = heights[stack.pop()];
+            int width = heights.length - stack.peek() - 1;
+            maxArea = Math.max(maxArea, height * width);
+        }
+
+        return maxArea;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N×M)
+Space Complexity: O(M)
+
+
+
+
+
+
+
+
