@@ -1,0 +1,55 @@
+Day 232/250: Minimum Time Visiting All Points
+
+Problem Statement #1266
+
+Problem Statement Explanation:
+
+On a 2D plane, there are n points with integer coordinates points[i] = [xi, yi]. 
+Your task is to find the minimum time in seconds to visit all points in the order given by points.
+
+Rules for movement:
+
+In one second, you can move:
+Vertically: 1 unit
+Horizontally: 1 unit
+Diagonally: 1 unit (this is the key to minimizing time)
+You must visit the points in the specific order they appear in the array.
+
+Solution Apprroach:
+
+The core of this problem lies in understanding that diagonal movement is the most efficient way to travel. 
+When moving between two points (x^1,y^1) and (x^2,y^2):
+
+Diagonal Advantage: Moving diagonally covers one unit of both x and y simultaneously in just 1 second.
+The Formula: The minimum time to move between two points is determined by the dimension with the largest gap. 
+This is known as the Chebyshev Distance.
+Calculation: For any two consecutive points, the time taken is:
+
+Here's the code:
+
+class Solution {
+    public int minTimeToVisitAllPoints(int[][] points) {
+        int totalTime = 0;
+        
+        for (int i = 0; i < points.length - 1; i++) {
+            int x1 = points[i][0];
+            int y1 = points[i][1];
+            
+            int x2 = points[i + 1][0];
+            int y2 = points[i + 1][1];
+            
+            int diffX = Math.abs(x2 - x1);
+            int diffY = Math.abs(y2 - y1);
+            
+            totalTime += Math.max(diffX, diffY);
+        }
+        
+        return totalTime;
+    }
+}
+
+Complexity:
+
+Time Complexity:	O(N)
+Space Complexity: O(1)
+
