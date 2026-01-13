@@ -1,0 +1,82 @@
+Day 233/250: Separate Squares I
+
+Problem Statement #3453
+
+Problem Statement Explantion:
+
+We are given a 2D array squares where squares[i] = [x_i, y_i, l_i]. 
+Each entry represents a square with its bottom-left corner at (x^i,y^i) and a side length of l^i.
+
+Objective: Find a horizontal line y=Y such that the total area of the squares below the line is equal to the total area of the squares above the line. 
+If multiple such lines exist, return the one with the smallest y-coordinate.
+Note: Overlapping areas are counted multiple times (each square contributes its own area independently).
+
+Solution Approach:
+
+The core observation is that the area below a horizontal line y is a non-decreasing function. As y increases, the area below y increases. This monotonicity makes the problem perfectly suited for Binary Search on the answer.
+
+Step-by-Step Logic:
+Calculate Total Area: Sum up the area of every square (l^i^2). Our target area below the line is TotalArea/2.
+Define Search Range: * low: The minimum y-coordinate among all squares.
+high: The maximum y-coordinate plus its side length.
+
+Binary Search:
+
+Pick a middle point mid.
+Calculate the area of all squares lying below y = mid.
+For a single square at y^i with length l^i:
+If mid <= y_i, area below is 0.
+If mid >= y_i + l_i, area below is l^i^2.
+Otherwise, the square is split: area below is (mid−y^i)×l^i.
+Precision: Since the answer requires a precision of 10^−5, we run the binary search for a fixed number of iterations (e.g., 100) to ensure high accuracy.
+
+Here's the code:
+
+class Solution {
+    public double separateSquares(int[][] squares) {
+        double totalArea = 0;
+        double min_y = 1e9, max_y = 0;
+
+        for (int[] s : squares) {
+            double side = s[2];
+            totalArea += side * side;
+            min_y = Math.min(min_y, (double)s[1]);
+            max_y = Math.max(max_y, (double)s[1] + side);
+        }
+
+        double low = min_y, high = max_y;
+        // 100 iterations for precision
+        for (int i = 0; i < 100; i++) {
+            double mid = low + (high - low) / 2;
+            if (calculateAreaBelow(squares, mid) < totalArea / 2.0) {
+                low = mid;
+            } else {
+                high = mid;
+            }
+        }
+        return low;
+    }
+
+    private double calculateAreaBelow(int[][] squares, double mid) {
+        double area = 0;
+        for (int[] s : squares) {
+            double y = s[1];
+            double l = s[2];
+            if (mid <= y) continue;
+            if (mid >= y + l) {
+                area += l * l;
+            } else {
+                area += (mid - y) * l;
+            }
+        }
+        return area;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N×K)
+Space Complexity: O(1)
+
+
+
