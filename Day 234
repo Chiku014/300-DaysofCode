@@ -1,0 +1,120 @@
+Day 234/250: Separate Squares II
+
+Problem Statement #3454
+
+Problem Statement Explantion:
+
+Given a 2D array squares where squares[i] = [xi, yi, li], representing a square with the bottom-left corner at (x^i,y^i) and side length l^i.
+The squares may overlap. 
+You need to find a horizontal line y=y such that the total area of the union of the squares below the line equals the total area of the union of the squares above the line. 
+Return the value of y as a double.
+
+Solution Approach:
+
+Simply summing individual square areas fails because overlaps must only be counted once. We treat this as a Union of Rectangles problem.
+
+1. The Geometry Logic
+Instead of a standard binary search on the y-coordinate (which is computationally expensive when re-calculating union area), we use a Sweep Line along the y-axis.
+We collect all y^start and y^end coordinates as "events."
+As we move from one y-event to the next, the set of active x-intervals remains constant.
+The area of a horizontal "slice" is: Union Length of Active X-intervals×(y^current −y^previous).
+
+2. Segment Tree for X-Intervals
+To efficiently find the "Union Length" of overlapping x-intervals:
+We use Coordinate Compression on all x-coordinates because they can be very large.
+A Segment Tree is built over these compressed x-coordinates.
+
+Each node in the tree stores:
+count: How many squares currently cover this interval.
+length: The total length within this range covered by at least one square.
+When count > 0, the length of the node is the full width of its range. When count == 0, it is the sum of its children's lengths.
+
+3. Finding the Median Line
+First Pass: Run the sweep line to calculate the Total Area of the union.
+
+Target Area: Define target = Total Area / 2.
+Second Pass: Run the sweep line again, accumulating area slice by slice.
+Interpolation: When adding a slice would exceed the target, the median line y must lie within that slice.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public double separateSquares(int[][] squares) {
+        List<int[]> events = new ArrayList<>();
+        TreeSet<Integer> xCoords = new TreeSet<>();
+        for (int[] s : squares) {
+            int x1 = s[0], x2 = s[0] + s[2], y1 = s[1], y2 = s[1] + s[2];
+            events.add(new int[]{y1, 1, x1, x2});
+            events.add(new int[]{y2, -1, x1, x2});
+            xCoords.add(x1);
+            xCoords.add(x2);
+        }
+        // Sort events by Y coordinate
+        Collections.sort(events, (a, b) -> Integer.compare(a[0], b[0]));
+
+        List<Integer> sortedX = new ArrayList<>(xCoords);
+        Map<Integer, Integer> xToIdx = new HashMap<>();
+        for (int i = 0; i < sortedX.size(); i++) xToIdx.put(sortedX.get(i), i);
+
+        int m = sortedX.size();
+        long[] count = new long[4 * m];
+        double[] length = new double[4 * m];
+
+        // Pass 1: Calculate Total Union Area
+        double totalArea = 0;
+        double prevY = events.get(0)[0];
+        for (int[] e : events) {
+            totalArea += length[1] * (e[0] - prevY);
+            update(1, 0, m - 2, xToIdx.get(e[2]), xToIdx.get(e[3]) - 1, e[1], count, length, sortedX);
+            prevY = e[0];
+        }
+
+        // Pass 2: Find the Y-line that splits the area in half
+        double target = totalArea / 2.0;
+        double currentArea = 0;
+        Arrays.fill(count, 0);
+        Arrays.fill(length, 0);
+        prevY = events.get(0)[0];
+
+        for (int[] e : events) {
+            double sliceArea = length[1] * (e[0] - prevY);
+            if (currentArea + sliceArea >= target) {
+                // The target line is within this Y-interval
+                return prevY + (target - currentArea) / length[1];
+            }
+            currentArea += sliceArea;
+            update(1, 0, m - 2, xToIdx.get(e[2]), xToIdx.get(e[3]) - 1, e[1], count, length, sortedX);
+            prevY = e[0];
+        }
+        return prevY;
+    }
+
+    private void update(int node, int start, int end, int l, int r, int val, long[] count, double[] length, List<Integer> sortedX) {
+        if (l > end || r < start) return;
+        if (l <= start && end <= r) {
+            count[node] += val;
+        } else {
+            int mid = (start + end) / 2;
+            update(node * 2, start, mid, l, r, val, count, length, sortedX);
+            update(node * 2 + 1, mid + 1, end, l, r, val, count, length, sortedX);
+        }
+        
+        if (count[node] > 0) {
+            length[node] = (double)sortedX.get(end + 1) - sortedX.get(start);
+        } else if (start != end) {
+            length[node] = length[node * 2] + length[node * 2 + 1];
+        } else {
+            length[node] = 0;
+        }
+    }
+}
+
+Complexity:
+
+Time Complexity: O(NlogN)
+Space Complexity: O(N)
+
+
+
