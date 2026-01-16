@@ -1,0 +1,78 @@
+Day 236/250: Maximum Square Area by Removing Fences
+
+Problem Statement #2975
+
+Problem Statement Explaantion:
+
+You are given a rectangular field of size m×n. 
+There are horizontal fences at coordinates hFences and vertical fences at coordinates vFences. 
+You can remove any number of existing fences.
+The goal is to find the maximum possible area of a square that can be formed by the remaining fences (including the boundaries of the field at 1 and m for horizontal, and 1 and n for vertical).
+Return: The maximum area modulo 10^9+7. If no square can be formed, return −1.
+
+Solution Approach:
+
+To form a square, we need the distance between two horizontal fences to be exactly equal to the distance between two vertical fences.
+
+1. Identify All Fence Positions
+The boundaries of the field are fixed. We must treat 1 and m as horizontal fences, and 1 and n as vertical fences.
+Horizontal coordinates: [1, ..., hFences, ..., m]
+Vertical coordinates: [1, ..., vFences, ..., n]
+
+2. Calculate All Possible Gaps
+A gap is the distance between any two fences. Since we can remove any fence, any pair of fences can potentially form the side of a square.
+We use a HashSet to store all possible distances (h^j−h^i) between any two horizontal fences.
+We then iterate through all possible distances (v^j−v^i) between any two vertical fences.
+
+3. Find the Maximum Intersection
+If a vertical gap exists in the horizontal gaps HashSet, it means a square with that side length is possible. We track the largest such side length found.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public int maximizeSquareArea(int m, int n, int[] hFences, int[] vFences) {
+        // Prepare horizontal fences including boundaries
+        long[] h = new long[hFences.length + 2];
+        for (int i = 0; i < hFences.length; i++) h[i] = hFences[i];
+        h[hFences.length] = 1;
+        h[hFences.length + 1] = m;
+        
+        // Prepare vertical fences including boundaries
+        long[] v = new long[vFences.length + 2];
+        for (int i = 0; i < vFences.length; i++) v[i] = vFences[i];
+        v[vFences.length] = 1;
+        v[vFences.length + 1] = n;
+        
+        // Calculate all possible horizontal gaps
+        Set<Long> hGaps = new HashSet<>();
+        for (int i = 0; i < h.length; i++) {
+            for (int j = i + 1; j < h.length; j++) {
+                hGaps.add(Math.abs(h[i] - h[j]));
+            }
+        }
+        
+        long maxSide = -1;
+        // Check all possible vertical gaps against the horizontal set
+        for (int i = 0; i < v.length; i++) {
+            for (int j = i + 1; j < v.length; j++) {
+                long gap = Math.abs(v[i] - v[j]);
+                if (hGaps.contains(gap)) {
+                    maxSide = Math.max(maxSide, gap);
+                }
+            }
+        }
+        
+        if (maxSide == -1) return -1;
+        
+        long mod = 1_000_000_007;
+        return (int) ((maxSide * maxSide) % mod);
+    }
+}
+
+Complexity:
+
+Time Complexity: O(H2+V2)
+Space Complexity:	O(H^2)
+
