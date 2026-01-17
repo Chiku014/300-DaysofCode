@@ -1,0 +1,62 @@
+Day 237/250: Find the Largest Area of Square Inside Two Rectangles
+
+Problem Statement #3047
+
+Problem Statement Explantion:
+
+There are n rectangles aligned with the coordinate axes. 
+You are given two 2D arrays bottomLeft and topRight, where bottomLeft[i] = [xi1, yi1] and topRight[i] = [xi2, yi2] represent the coordinates of the bottom-left and top-right corners of the ith rectangle respectively.
+You need to find the maximum area of a square that can fit inside the intersection of any two rectangles. 
+If no two rectangles intersect, return 0.
+
+Solution Approach:
+
+To solve this problem, we compare every possible pair of rectangles to find their intersection region.
+Iterate Pairs: Use a nested loop to check every pair (i,j) where i<j.
+Find Intersection: The intersection of two axis-aligned rectangles is itself an axis-aligned rectangle.
+
+Bottom-left corner of intersection: (max(x^i1,x^j1),max(y^i1,y^j1))
+Top-right corner of intersection: (min(x^i2,x^j2),min(y^i2,y^j2))
+
+Validate Overlap: If the calculated top-right coordinates are greater than the bottom-left coordinates (x overlap > 0 and y overlap > 0), an intersection exists.
+Find Largest Square: A square must have equal sides. The largest square that can fit inside a rectangle of size W×H has a side length equal to min(W,H).
+Update Maximum: Keep track of the largest side length found across all pairs and return side 2
+
+Here's the code:
+
+class Solution {
+    public long largestSquareArea(int[][] bottomLeft, int[][] topRight) {
+        long maxSide = 0;
+        int n = bottomLeft.length;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+
+                int intersectX1 = Math.max(bottomLeft[i][0], bottomLeft[j][0]);
+                int intersectY1 = Math.max(bottomLeft[i][1], bottomLeft[j][1]);
+
+                int intersectX2 = Math.min(topRight[i][0], topRight[j][0]);
+                int intersectY2 = Math.min(topRight[i][1], topRight[j][1]);
+
+                long width = intersectX2 - intersectX1;
+                long height = intersectY2 - intersectY1;
+
+                if (width > 0 && height > 0) {
+                    long side = Math.min(width, height);
+                    if (side > maxSide) {
+                        maxSide = side;
+                    }
+                }
+            }
+        }
+        return maxSide * maxSide;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n^2)
+Space Complexity: O(1)
+
+
+
