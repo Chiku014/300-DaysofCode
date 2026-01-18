@@ -1,0 +1,93 @@
+Day 238/250: Largest Magic Square
+
+Problem Statement #1895
+
+Problem Statement Explanation:
+
+A magic square is a k×k matrix filled with integers such that every row sum, every column sum, and both diagonal sums are all equal. 
+The integers do not have to be distinct. Every 1×1 grid is trivially a magic square.
+Given an m×n integer grid, return the size (i.e., the side length k) of the largest magic square that can be found within the grid.
+
+Solution Approach:
+
+Since the grid dimensions are relatively small (50×50), we can afford a solution that checks various square sizes. However, calculating the sum of every row, column, and diagonal repeatedly is inefficient. To optimize this, we use Prefix Sums.
+
+1. Precomputation
+We create four auxiliary 2D arrays to store cumulative sums:
+
+Row Sums (rowSum): rowSum[i][j] stores the sum of elements in row i from index 0 to j-1.
+Column Sums (colSum): colSum[i][j] stores the sum of elements in column j from index 0 to i-1.
+Main Diagonal Sums (diagSum): Stores cumulative sums along the \ direction.
+Anti-Diagonal Sums (antiDiagSum): Stores cumulative sums along the / direction.
+
+2. Sliding Window Search
+We iterate through all possible side lengths k, starting from the largest possible value min(m,n) down to 2.
+For each k, we slide a k×k window across the entire grid.
+For each window, we pick a "target sum" (usually the sum of the first row).
+We then verify if all other k−1 rows, k columns, and 2 diagonals match that target sum using our precomputed prefix arrays in O(1) or O(k) time.
+
+3. Early Exit
+Because we iterate k from largest to smallest, the first k that satisfies the magic square condition is guaranteed to be the maximum. If no k>1 is found, we return 1.
+
+Here's the code:
+
+class Solution {
+    public int largestMagicSquare(int[][] grid) {
+        int m = grid.length, n = grid[0].length;
+        int[][] rowSum = new int[m][n + 1];
+        int[][] colSum = new int[m + 1][n];
+        int[][] diagSum = new int[m + 1][n + 1];
+        int[][] antiDiagSum = new int[m + 1][n + 1];
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                rowSum[i][j + 1] = rowSum[i][j] + grid[i][j];
+                colSum[i + 1][j] = colSum[i][j] + grid[i][j];
+                diagSum[i + 1][j + 1] = diagSum[i][j] + grid[i][j];
+                antiDiagSum[i + 1][j] = antiDiagSum[i][j + 1] + grid[i][j];
+            }
+        }
+
+        for (int k = Math.min(m, n); k > 1; k--) {
+            for (int i = 0; i <= m - k; i++) {
+                for (int j = 0; j <= n - k; j++) {
+                    if (isMagic(grid, i, j, k, rowSum, colSum, diagSum, antiDiagSum)) {
+                        return k;
+                    }
+                }
+            }
+        }
+        return 1;
+    }
+
+    private boolean isMagic(int[][] grid, int r, int c, int k, 
+                            int[][] rs, int[][] cs, int[][] ds, int[][] ads) {
+        int target = rs[r][c + k] - rs[r][c];
+        
+        // Check rows
+        for (int i = r + 1; i < r + k; i++) {
+            if (rs[i][c + k] - rs[i][c] != target) return false;
+        }
+        
+        // Check columns
+        for (int j = c; j < c + k; j++) {
+            if (cs[r + k][j] - cs[r][j] != target) return false;
+        }
+        
+        // Check main diagonal
+        if (ds[r + k][c + k] - ds[r][c] != target) return false;
+        
+        // Check anti-diagonal
+        if (ads[r + k][c] - ads[r][c + k] != target) return false;
+        
+        return true;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(m⋅n⋅min(m,n))
+Space Complexity: O(m⋅n)
+
+
+
