@@ -1,0 +1,69 @@
+Day 240/250: Construct the Minimum Bitwise Array I
+
+Problem Statement #3314
+
+Problem Statement Explantion:
+
+Given an array nums consisting of n prime numbers, you need to construct an array ans of length n such that for each index i, ans[i] is the smallest non-negative integer x that satisfies the equation:
+
+x∨(x+1)=nums[i]
+If no such x exists, set ans[i] = -1.
+
+Solution Approach:
+
+The core of this problem lies in understanding how the bitwise OR operator works with consecutive integers (x and x+1).
+
+Key Insights:
+The Even/Odd Rule: 
+For any integer x, x∨(x+1) will always result in an odd number. 
+This is because between x and x+1, one of them must have the least significant bit (LSB) set to 1.
+Since 2 is the only even prime, and the result must be odd, there is no solution for nums[i]=2. 
+Thus, ans[i]=−1.
+
+The Bitwise Pattern:
+Adding 1 to a binary number affects the rightmost string of contiguous 1s.
+To find the minimum x, we need to find the rightmost block of ones in nums[i] and turn the most significant bit of that specific block into a 0.
+Iterate through the input list nums.
+Handle the Edge Case: If the number is 2, the answer is −1.
+
+Bit Manipulation:
+
+Find the first 0 bit from the right using the formula: mask = (~num) & (num + 1).
+The bit to be flipped in the original number is one position to the right of this mask: bitToFlip = mask >> 1.
+Perform an XOR between the original number and this bit to "turn off" that specific 1.
+Store and Return the resulting array.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public int[] minBitwiseArray(List<Integer> nums) {
+        int n = nums.size();
+        int[] ans = new int[n];
+        
+        for (int i = 0; i < n; i++) {
+            int num = nums.get(i);
+            
+            if (num == 2) {
+                ans[i] = -1;
+            } else {
+                int firstZeroBitMask = ((~num) & (num + 1));
+                int bitToFlip = firstZeroBitMask >> 1;
+                
+                ans[i] = num ^ bitToFlip;
+            }
+        }
+        
+        return ans;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N)
+Space Complexity: O(1)
+
+
+
+
