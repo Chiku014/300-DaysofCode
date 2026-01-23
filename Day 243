@@ -1,0 +1,183 @@
+Day 243/250: Minimum Pair Removal to Sort Array II
+
+Problem Statement #3510
+
+Problem Statement Explanation:
+
+You are given an integer array `nums`. You need to perform operations to make the array non-decreasing (sorted in ascending order).
+
+In each operation:
+1. Choose an adjacent pair of elements with the minimum sum
+2. If there are multiple pairs with the same minimum sum, choose the leftmost one
+3. Replace both elements with their sum
+
+Return the minimum number of operations required to make the array non-decreasing.
+
+Example 1
+Input: nums = [3, 1, 4, 2]
+Output: 2
+Explanation:
+- Choose pair (1, 4) with sum = 5, array becomes [3, 5, 2]
+- Choose pair (3, 5) with sum = 8, array becomes [8, 2]
+- Choose pair (8, 2) with sum = 10, array becomes [10]
+
+Example 2
+Input: nums = [1, 2, 3]
+Output: 0
+Explanation: The array is already non-decreasing.
+
+Constraints
+`1 <= nums.length <= 10^5`
+`-10^9 <= nums[i] <= 10^9`
+
+## Solution Approach
+
+The solution uses a **greedy strategy with efficient data structures**:
+
+Key Data Structures
+1. **TreeSet (Priority Queue)**: Maintains all adjacent pair sums sorted by value (and index for ties), enabling O(log n) retrieval of the minimum sum pair
+2. **Simulated Doubly Linked List**: Uses `nextIndices` and `prevIndices` arrays to track element neighbors efficiently after merges
+3. **Inversion Counter**: Tracks positions where `nums[i] > nums[i+1]` (inversions). The array is sorted when inversions = 0
+
+Algorithm Steps
+1. Initialize the TreeSet with all adjacent pair sums
+2. Count initial inversions in the array
+3. While inversions exist:
+   - Extract the pair with minimum sum from TreeSet
+   - Merge the pair by replacing both elements with their sum
+   - Update the TreeSet by removing old pairs and adding new pairs involving the merged element
+   - Update inversion count:
+     - Decrease count for inversions resolved by the merge
+     - Increase count for new inversions created
+   - Update the linked list pointers to reflect the merge
+4. Return the number of operations performed
+
+Why This Works
+- **Greedy Choice**: Always merging the minimum sum pair ensures we create the smallest possible values, which helps resolve inversions efficiently
+- **Efficient Updates**: The doubly linked list simulation allows O(1) neighbor access after merges
+- **Termination**: Each operation reduces array size until all inversions are eliminated
+
+Complexity Analysis
+
+- **Time Complexity**: O(n log n)
+  - Each of the n-1 possible merge operations involves TreeSet operations (insert, remove, pollFirst)
+  - Each TreeSet operation takes O(log n) time
+  
+- **Space Complexity**: O(n)
+  - TreeSet stores at most n-1 pairs: O(n)
+  - Arrays for indices and values: O(n)
+  - Total: O(n)
+
+## Code
+
+```java
+import java.util.*;
+
+class Solution {
+    public int minimumPairRemoval(int[] nums) {
+        final int n = nums.length;
+        int ans = 0;
+        int inversionsCount = 0;
+        int[] nextIndices = new int[n];
+        int[] prevIndices = new int[n];
+        long[] values = Arrays.stream(nums).asLongStream().toArray();
+        
+        TreeSet<Pair> pairSums = new TreeSet<>((a, b) -> {
+            int cmp = Long.compare(a.sum, b.sum);
+            return cmp != 0 ? cmp : Integer.compare(a.index, b.index);
+        });
+        
+        for (int i = 0; i < n; ++i) {
+            nextIndices[i] = i + 1;
+            prevIndices[i] = i - 1;
+        }
+        
+        for (int i = 0; i < n - 1; ++i) {
+            pairSums.add(new Pair((long) nums[i] + nums[i + 1], i));
+        }
+        
+        for (int i = 0; i < n - 1; ++i) {
+            if (nums[i + 1] < nums[i]) {
+                ++inversionsCount;
+            }
+        }
+        
+        while (inversionsCount > 0) {
+            ++ans;
+            
+            Pair smallestPair = pairSums.pollFirst();
+            final long pairSum = smallestPair.sum;
+            final int currIndex = smallestPair.index;
+            final int nextIndex = nextIndices[currIndex];
+            final int prevIndex = prevIndices[currIndex];
+            
+            if (prevIndex >= 0) {
+                final long oldPairSum = values[prevIndex] + values[currIndex];
+                final long newPairSum = values[prevIndex] + pairSum;
+                pairSums.remove(new Pair(oldPairSum, prevIndex));
+                pairSums.add(new Pair(newPairSum, prevIndex));
+                
+                if (values[prevIndex] > values[currIndex]) {
+                    --inversionsCount;
+                }
+                if (values[prevIndex] > pairSum) {
+                    ++inversionsCount;
+                }
+            }
+            
+            if (values[nextIndex] < values[currIndex]) {
+                --inversionsCount;
+            }
+            
+            final int nextNextIndex = (nextIndex < n) ? nextIndices[nextIndex] : n;
+            if (nextNextIndex < n) {
+                final long oldPairSum = values[nextIndex] + values[nextNextIndex];
+                final long newPairSum = pairSum + values[nextNextIndex];
+                pairSums.remove(new Pair(oldPairSum, nextIndex));
+                pairSums.add(new Pair(newPairSum, currIndex));
+                
+                if (values[nextNextIndex] < values[nextIndex]) {
+                    --inversionsCount;
+                }
+                if (values[nextNextIndex] < pairSum) {
+                    ++inversionsCount;
+                }
+                prevIndices[nextNextIndex] = currIndex;
+            }
+            
+            nextIndices[currIndex] = nextNextIndex;
+            values[currIndex] = pairSum;
+        }
+        
+        return ans;
+    }
+    
+    static class Pair {
+        long sum;
+        int index;
+        
+        Pair(long sum, int index) {
+            this.sum = sum;
+            this.index = index;
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Pair)) return false;
+            Pair pair = (Pair) o;
+            return sum == pair.sum && index == pair.index;
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(sum, index);
+        }
+    }
+}
+```
+
+## Tags
+`Array` `Greedy` `Heap (Priority Queue)` `Linked List` `TreeSet` `Hard`
+
+
