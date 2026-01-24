@@ -1,0 +1,50 @@
+Day 244/250: Minimize Maximum Pair Sum in Array
+
+Problem Statement #1877
+
+Problem Statement Explanation:
+
+The goal is to take an array of even length n and pair up all elements into n/2 pairs. 
+We want to do this in a way that the maximum sum among all pairs is as small as possible.
+
+Example:
+Input: nums = [3, 5, 2, 3]
+Output: 7
+
+Explanation: The pairs are (2, 5) and (3, 3). The maximum sum is max(7, 6) = 7.
+
+Solution Approach:
+
+To minimize the maximum sum, we need to balance the values. 
+If we pair the largest number with the second-largest number, the sum will be unnecessarily high. 
+Instead, we should pair the smallest number with the largest number.
+
+Step-by-Step Breakdown:
+Sort the Array: By sorting the array in ascending order, we can easily identify the smallest and largest available elements.
+Two-Pointer Pairing: Use two pointers (or a single loop with index math) to pair the element at index i with the element at index n−1−i.
+Track the Maximum: Iterate through the first half of the array, calculate the sum for each pair, and keep track of the highest sum found.
+
+Here's the code:
+
+import java.util.Arrays;
+
+class Solution {
+    public int minPairSum(int[] nums)
+        Arrays.sort(nums);
+        
+        int maxPairSum = 0;
+        int n = nums.length;
+        for (int i = 0; i < n / 2; i++) {
+            int currentPairSum = nums[i] + nums[n - 1 - i];
+            maxPairSum = Math.max(maxPairSum, currentPairSum);
+        }
+        
+        return maxPairSum;
+    }
+}
+
+Complexity:
+
+Time Complexity:	O(nlogn)
+Space Complexity:	O(1)
+
