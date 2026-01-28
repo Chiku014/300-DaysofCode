@@ -1,0 +1,122 @@
+Day 248/250: Minimum Cost Path with Teleportations
+
+Problem Statement #3651
+
+Problem Statement Explantion:
+
+You are given an m×n grid and an integer k, representing the maximum number of teleportations allowed.
+
+Start: (0,0)
+End: (m−1,n−1)
+
+Movement Rules:
+
+Normal Move: Move Right or Down to an adjacent cell. The cost of this move is the value of the destination cell: grid[i][j].
+Teleportation: Move from your current cell (i,j) to any other cell (x,y) in the grid, provided that grid[x][y] <= grid[i][j]. The cost of a teleportation is 0.
+Goal: Find the minimum cost to reach the bottom-right corner using at most k teleports.
+
+Solution Approach:
+
+The problem can be modeled as finding the shortest path in a weighted graph, but because we have a limited resource (teleports), we use Layered Dynamic Programming.
+
+1. State Definition
+We define dp[t][i][j] as the minimum cost to reach cell (i,j) using exactly t teleportations.
+
+2. Transitions
+There are two ways to reach a state (t,i,j):
+
+From a Normal Move:
+
+dp[t][i][j]=min(dp[t][i−1][j],dp[t][i][j−1])+grid[i][j]
+This is the standard grid DP transition within the same teleportation layer.
+
+From a Teleportation: If t>0, you could have arrived at (i,j) via a teleport from some cell (x,y) in layer t−1, provided grid[i][j]≤grid[x][y].
+
+dp[t][i][j]=min(dp[t−1][x][y]) for all (x,y) where grid[x][y]≥grid[i][j]
+3. Optimization
+To avoid a O(m2⋅n2) search for every teleport, we use a Suffix Minimum array based on the grid values.
+We track the minimum cost to reach any cell with a specific value V in the current layer.
+We then pre-calculate the best cost among all cells with value ≥V. This allows each teleport transition to be calculated in O(1) after a single O(ValueRange) pass.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public int minCost(int[][] grid, int k) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int INF = Integer.MAX_VALUE / 2;
+
+        int maxVal = 0;
+        for (int[] row : grid) {
+            for (int val : row) {
+                maxVal = Math.max(maxVal, val);
+            }
+        }
+
+        int[][][] dp = new int[k + 1][m][n];
+        for (int[][] layer : dp) {
+            for (int[] row : layer) {
+                Arrays.fill(row, INF);
+            }
+        }
+
+        dp[0][0][0] = 0;
+
+        for (int t = 0; t <= k; t++) {
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (dp[t][i][j] == INF) continue;
+                    
+                    if (i + 1 < m) {
+                        dp[t][i + 1][j] = Math.min(dp[t][i + 1][j], dp[t][i][j] + grid[i + 1][j]);
+                    }
+                    if (j + 1 < n) {
+                        dp[t][i][j + 1] = Math.min(dp[t][i][j + 1], dp[t][i][j] + grid[i][j + 1]);
+                    }
+                }
+            }
+
+            if (t < k) {
+                int[] minCostForValue = new int[maxVal + 1]; 
+                Arrays.fill(minCostForValue, INF);
+
+                for (int i = 0; i < m; i++) {
+                    for (int j = 0; j < n; j++) {
+                        if (dp[t][i][j] != INF) {
+                            minCostForValue[grid[i][j]] = Math.min(minCostForValue[grid[i][j]], dp[t][i][j]);
+                        }
+                    }
+                }
+
+                int[] suffixMin = new int[maxVal + 2];
+                suffixMin[maxVal + 1] = INF;
+                for (int v = maxVal; v >= 0; v--) {
+                    suffixMin[v] = Math.min(suffixMin[v + 1], minCostForValue[v]);
+                }
+
+                for (int i = 0; i < m; i++) {
+                    for (int j = 0; j < n; j++) {
+                        dp[t + 1][i][j] = Math.min(dp[t + 1][i][j], suffixMin[grid[i][j]]);
+                    }
+                }
+            }
+        }
+
+        int result = INF;
+        for (int t = 0; t <= k; t++) {
+            result = Math.min(result, dp[t][m - 1][n - 1]);
+        }
+
+        return result;
+    }
+}
+
+Complexity:
+
+Time Complexity:	O(k⋅(m⋅n+V))
+Space Complexity: O(k⋅m⋅n)
+
+
+
