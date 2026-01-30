@@ -1,0 +1,104 @@
+Day 250/250: Minimum Cost Conversion II
+
+Problem Statement #2977
+
+Problem Statement Explantion:
+
+You are given two strings, source and target, both of length n. 
+You are also given two string arrays, original and changed, and an integer array cost, where cost[i] represents the cost of converting the string original[i] to changed[i].
+You can perform any number of conversions. 
+Each conversion involves replacing a non-overlapping substring of source that matches original[i] with changed[i]. 
+The goal is to find the minimum cost to transform source into target. If it is impossible, return -1.
+
+Solution Approch:
+
+The problem is a combination of Graph Theory (Shortest Path) and Dynamic Programming.
+
+1. Mapping Strings to Nodes
+Since the transformations are based on strings rather than single characters, we first collect all unique strings from the original and changed arrays and map them to unique integer IDs. 
+This allows us to represent the transformation rules as a graph.
+
+2. All-Pairs Shortest Path (Floyd-Warshall)
+Multiple transformations can be chained together (e.g., A→B and B→C). 
+To find the minimum cost to convert any string U to string V:
+We initialize a distance matrix with the given cost array.
+We use the Floyd-Warshall algorithm to calculate the shortest path between all pairs of string IDs.
+
+3. Dynamic Programming
+We define dp[i] as the minimum cost to convert the prefix source[0...i-1] to target[0...i-1].
+Base Case: dp[0] = 0.
+Transition 1 (Match): If source[i] == target[i], then dp[i+1] = min(dp[i+1], dp[i]).
+Transition 2 (Transformation): For every possible length L of strings in our transformation set, we check if the substring source[i...i+L] can be converted to target[i...i+L] using our precomputed shortest paths.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public long minimumCost(String source, String target, String[] original, String[] changed, int[] cost) {
+        int n = source.length();
+        Map<String, Integer> strToId = new HashMap<>();
+        int idCounter = 0;
+        
+        for (String s : original) if (!strToId.containsKey(s)) strToId.put(s, idCounter++);
+        for (String s : changed) if (!strToId.containsKey(s)) strToId.put(s, idCounter++);
+        
+        long[][] dist = new long[idCounter][idCounter];
+        for (long[] row : dist) Arrays.fill(row, Long.MAX_VALUE / 2);
+        for (int i = 0; i < idCounter; i++) dist[i][i] = 0;
+        
+        for (int i = 0; i < original.length; i++) {
+            int u = strToId.get(original[i]);
+            int v = strToId.get(changed[i]);
+            dist[u][v] = Math.min(dist[u][v], (long) cost[i]);
+        }
+        
+        for (int k = 0; k < idCounter; k++) {
+            for (int i = 0; i < idCounter; i++) {
+                for (int j = 0; j < idCounter; j++) {
+                    dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
+            }
+        }
+        
+        long[] dp = new long[n + 1];
+        Arrays.fill(dp, Long.MAX_VALUE / 2);
+        dp[0] = 0;
+        
+        Set<Integer> lengths = new HashSet<>();
+        for (String s : original) lengths.add(s.length());
+        
+        for (int i = 0; i < n; i++) {
+            if (dp[i] == Long.MAX_VALUE / 2) continue;
+            
+            if (source.charAt(i) == target.charAt(i)) {
+                dp[i + 1] = Math.min(dp[i + 1], dp[i]);
+            }
+            
+            for (int len : lengths) {
+                if (i + len <= n) {
+                    String subS = source.substring(i, i + len);
+                    String subT = target.substring(i, i + len);
+                    
+                    if (strToId.containsKey(subS) && strToId.containsKey(subT)) {
+                        int u = strToId.get(subS);
+                        int v = strToId.get(subT);
+                        if (dist[u][v] < Long.MAX_VALUE / 2) {
+                            dp[i + len] = Math.min(dp[i + len], dp[i] + dist[u][v]);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return dp[n] >= Long.MAX_VALUE / 2 ? -1 : dp[n];
+    }
+}
+
+Complexity:
+
+Time Complexity: O(M^3+N⋅L)
+Space Complexity: O(M^2+N)
+
+
+
