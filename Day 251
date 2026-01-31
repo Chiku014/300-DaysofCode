@@ -1,0 +1,48 @@
+Day 250/250: Find Smallest Letter Greater Than Target
+
+Problem Statement #744
+
+Problem Statement Explanation:
+
+Given a characters array letters that is sorted in non-decreasing order, and a character target, return the smallest character in letters that is lexicographically greater than target.
+Note: If such a character does not exist, return the first character in letters.
+
+Solution Approach:
+
+Since the input array is already sorted, a linear scan (O(n)) is unnecessary. 
+We can find the result in logarithmic time using a modified Binary Search.
+
+The Logic
+Search Range: Initialize two pointers, low at 0 and high at n - 1.
+Comparison: If letters[mid] is less than or equal to target, we know the answer must be to the right, so we set low = mid + 1.
+Narrowing: If letters[mid] is greater than target, this character could be the answer, but there might be a smaller one to the left. We set high = mid - 1.
+Wraparound: The problem specifies that if no character is greater than the target, we return the first character. This is handled by returning letters[low % n].
+
+Here's the code:
+
+class Solution {
+    public char nextGreatestLetter(char[] letters, char target) {
+        int low = 0;
+        int high = letters.length - 1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (letters[mid] <= target) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return letters[low % letters.length];
+    }
+}
+
+Complexity:
+
+Time Complexity: O(logn)
+Space Complexity: O(1)
+
+
+
