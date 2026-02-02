@@ -1,0 +1,103 @@
+Day 253/250: Divide an Array Into Subarrays With Minimum Cost II
+
+Problem Statement #3013
+
+Problem Statement Explantion:
+
+You are given an array of integers nums of length n, and two positive integers k and dist.
+
+The cost of an array is the value of its first element. For example, the cost of [1,2,3] is 1.
+
+You need to divide nums into k disjoint contiguous subarrays such that the difference between the starting index of the second subarray and the starting index of the last subarray is at most dist. 
+In other words, if the starting indices of the k subarrays are i1,i2,…,ik, then ik−i2≤dist.
+Return the minimum possible sum of the costs of these subarrays.
+
+Solution Approach:
+
+1. The Core Insight
+The first subarray always starts at index 0. Therefore, nums[0] is always part of our cost. We need to pick k−1 additional starting indices from the remaining array.
+The constraint ik-i2≤dist means that all chosen starting indices (from the 2nd to the k-th) must fit within a window of size dist + 1.
+
+2. Strategy
+We use a Sliding Window of size dist + 1 starting from index 1. For every window, we want to find the m=k−1 smallest elements.
+To maintain the m smallest elements efficiently as the window slides, we use two Balanced BSTs (implemented via TreeSet in Java):
+Left Set: Stores the m smallest elements currently in the window.
+Right Set: Stores the remaining elements in the window that are not among the m smallest.
+
+3. Balancing Logic
+Add/Remove: When the window moves, remove the element that is out of range and add the new element.
+Maintain Size: If the Left Set has fewer than m elements, pull the smallest from the Right Set.
+Swap for Optimality: If the smallest element in the Right Set is smaller than the largest in the Left Set, swap them to ensure the Left Set always contains the absolute minimums.
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public long minimumCost(int[] nums, int k, int dist) {
+        int n = nums.length;
+        int m = k - 1; 
+        long currentSmallestSum = 0;
+        
+        Comparator<Integer> cmp = (a, b) -> nums[a] != nums[b] ? 
+                                    Integer.compare(nums[a], nums[b]) : Integer.compare(a, b);
+        
+        TreeSet<Integer> left = new TreeSet<>(cmp);
+        TreeSet<Integer> right = new TreeSet<>(cmp);
+
+        for (int i = 1; i <= dist + 1; i++) {
+            left.add(i);
+            currentSmallestSum += nums[i];
+        }
+
+        while (left.size() > m) {
+            int last = left.pollLast();
+            currentSmallestSum -= nums[last];
+            right.add(last);
+        }
+
+        long minCost = currentSmallestSum;
+
+        for (int i = dist + 2; i < n; i++) {
+            int outIdx = i - dist - 1;
+            if (left.contains(outIdx)) {
+                currentSmallestSum -= nums[outIdx];
+                left.remove(outIdx);
+            } else {
+                right.remove(outIdx);
+            }
+
+            left.add(i);
+            currentSmallestSum += nums[i];
+
+            while (left.size() > m) {
+                int last = left.pollLast();
+                currentSmallestSum -= nums[last];
+                right.add(last);
+            }
+            
+            while (!right.isEmpty() && nums[right.first()] < nums[left.last()]) {
+                int fromLeft = left.pollLast();
+                int fromRight = right.pollFirst();
+                
+                currentSmallestSum -= nums[fromLeft];
+                currentSmallestSum += nums[fromRight];
+                
+                right.add(fromLeft);
+                left.add(fromRight);
+            }
+
+            minCost = Math.min(minCost, currentSmallestSum);
+        }
+
+        return nums[0] + minCost;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(nlog(dist))
+Space Complexity: O(dist)
+
+
+
