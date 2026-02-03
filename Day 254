@@ -1,0 +1,62 @@
+Day 254/300: Trionic Array I
+
+Problem Statement #3637
+
+Problem Statement Explantion:
+
+An array nums is called trionic if it can be partitioned into three non-empty segments such that the elements follow an Increasing → Decreasing → Increasing pattern.
+
+Formally, there must exist two indices p and q (0<p<q<n−1) such that:
+
+nums[0...p] is strictly increasing.
+nums[p...q] is strictly decreasing.
+nums[q...n-1] is strictly increasing.
+
+Return true if the array is trionic, and false otherwise.
+
+Solution Approach:
+
+The solution uses a Linear Scan (Three-Pass Pointer) approach. Since the segments must be strictly monotonic and non-empty, we can validate the array in a single traversal:
+First Ascent: Start from the beginning and move the pointer as long as the next element is strictly greater than the current one.
+Peak Validation: Ensure we actually moved (the first segment isn't empty) and that there are at least two elements left for the remaining two segments.
+The Descent: Move the pointer as long as the next element is strictly smaller.
+Valley Validation: Ensure we moved from the peak (the second segment isn't empty) and that there is at least one element left for the final segment.
+Second Ascent: Move the pointer as long as the next element is strictly greater.
+Final Check: If the pointer reaches the final index of the array, the sequence is valid.
+
+Here's the code:
+
+class Solution {
+    public boolean isTrionic(int[] nums) {
+        int n = nums.length;
+        if (n < 4) return false;
+
+        int i = 0;
+
+        while (i + 1 < n && nums[i] < nums[i+1]) {
+            i++;
+        }
+        int p = i;
+        if (p == 0 || p >= n - 2) return false;
+
+        while (i + 1 < n && nums[i] > nums[i + 1]) {
+            i++;
+        }
+
+        int q = i;
+        if (q == p || q >= n - 1) return false;
+
+        while (i + 1 < n && nums[i] < nums[i + 1]) {
+            i++;
+        }
+        return i == n - 1;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+
+
+
