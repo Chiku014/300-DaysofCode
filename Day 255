@@ -1,0 +1,87 @@
+Day 255/300: Trionic Array II
+
+Problem Statement #3640
+
+Problem Statement Explantion:
+
+A trionic subarray is defined by four indices l<p<q<r such that:
+The subarray from l to p is strictly increasing (length ≥2).
+The subarray from p to q is strictly decreasing (length ≥2).
+The subarray from q to r is strictly increasing (length ≥2).
+Your goal is to find the maximum sum of such a contiguous subarray.
+
+Solution Approach:
+
+This solution uses a two-pointer traversal technique to identify the "peaks" (p) and "valleys" (q) of the array.
+
+1. Identify the Peak (p)
+The algorithm first moves forward as long as the elements are strictly increasing. If it doesn't find at least one increase (i=l+1), it skips to the next starting point.
+
+2. Identify the Valley (q)
+From the peak, it moves forward as long as the elements are strictly decreasing. If it doesn't find at least one decrease, or if it hits the end of the array (meaning no room for the final increase), it resets.
+
+3. Handle the Final Increase
+Once a valley (q) is identified, it looks ahead to find the maximum possible sum by extending the third (increasing) part as far as possible.
+
+4. Optimize the Start
+The algorithm also looks backward from the peak (p) to see if including earlier elements of the initial increasing sequence improves the total sum (handling negative numbers effectively).
+
+Here's the code:
+
+class Solution {
+    public long maxSumTrionic(int[] nums) {
+        int n = nums.length;
+        int i = 0;
+        long ans = Long.MIN_VALUE;
+        while (i < n) {
+            int l = i;
+            i += 1;
+            while (i < n && nums[i - 1] < nums[i]) {
+                i += 1;
+            }
+            if (i == l + 1) {
+                continue;
+            }
+
+            int p = i - 1;
+            long s = nums[p - 1] + nums[p];
+            while (i < n && nums[i - 1] > nums[i]) {
+                s += nums[i];
+                i += 1;
+            }
+            if (i == p + 1 || i == n || nums[i - 1] == nums[i]) {
+                continue;
+            }
+
+            int q = i - 1;
+            s += nums[i];
+            i += 1;
+            long mx = 0, t = 0;
+            while (i < n && nums[i - 1] < nums[i]) {
+                t += nums[i];
+                i += 1;
+                mx = Math.max(mx, t);
+            }
+            s += mx;
+
+            mx = 0;
+            t = 0;
+            for (int j = p - 2; j >= l; j--) {
+                t += nums[j];
+                mx = Math.max(mx, t);
+            }
+            s += mx;
+
+            ans = Math.max(ans, s);
+            i = q;
+        }
+        return ans;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+
+
