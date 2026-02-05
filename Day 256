@@ -1,0 +1,47 @@
+Day 256/300: Transformed Array
+
+Problem Statement #3379
+
+Problem Statement Explantion:
+
+You are given an integer array nums. This array represents a circular array.
+Create a new array result of the same size as nums such that:
+For each index i, let x = nums[i].
+If x > 0, result[i] is the value at index (i + x) moving to the right.
+If x < 0, result[i] is the value at index (i - abs(x)) moving to the left.
+If x == 0, result[i] is the value at index i.
+Since the array is circular, moving past the last element wraps around to the first, and moving before the first element wraps around to the last.
+
+Solution Approach:
+
+The main challenge of this problem is correctly calculating the target index while accounting for the circular nature of the array and the way different programming languages handle the modulo operator with negative numbers.
+Circular Indexing: To handle wrapping around the array, we use the modulo operator %.
+Handling Negatives: In Java, -1 % 4 results in -1. To ensure we always map to a valid positive index, we use the formula:
+targetIndex=((i+nums[i])(modn)+n)(modn)
+This ensures that even if i + nums[i] is negative, adding n brings it back into a positive range before the final modulo operation.
+Construction: We iterate through the original array once, calculate the targetIndex for each i, and assign result[i] = nums[targetIndex].
+
+Here's the code:
+
+class Solution {
+    public int[] constructTransformedArray(int[] nums) {
+        int n = nums.length;
+        int[] result = new int[n];
+        
+        for (int i = 0; i < n; i++) {
+            int targetIndex = ((i + nums[i]) % n + n) % n;
+            result[i] = nums[targetIndex];
+        }
+        
+        return result;
+    }
+}
+
+Complexity:
+
+Time Complexity:	O(n)
+Space Complexity:	O(n)
+
+
+
+
