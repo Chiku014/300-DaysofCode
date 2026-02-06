@@ -1,0 +1,100 @@
+# 3634. Minimum Removals to Balance Array
+
+## Problem Statement
+
+Given an integer array `nums` and an integer `k`, an array is considered **balanced** if the maximum element in the array is at most `k` times the minimum element.
+
+Return the minimum number of elements that need to be removed from `nums` to make it balanced.
+
+**Example 1:**
+```
+Input: nums = [2,1,5], k = 2
+Output: 1
+Explanation: Remove 5, the array becomes [2,1] which is balanced because max(2,1) = 2 <= 2 * min(2,1) = 2.
+```
+
+**Example 2:**
+```
+Input: nums = [1,3,7,9], k = 2
+Output: 2
+Explanation: Remove 7 and 9, the array becomes [1,3] which is balanced.
+```
+
+**Constraints:**
+- `1 <= nums.length <= 10^5`
+- `1 <= nums[i] <= 10^9`
+- `1 <= k <= 10^9`
+
+## Solution Approach
+
+The key insight is to find the **longest balanced subarray** and remove everything else.
+
+### Strategy:
+
+1. **Sort the array** - After sorting, any balanced subarray will be contiguous
+2. **Two-pointer/Sliding window concept** - For each element as the minimum of a potential balanced subarray, find the maximum element that satisfies the condition
+3. **Binary search optimization** - For each minimum element `nums[i]`, find the rightmost element where `nums[j] <= nums[i] * k`
+4. **Track maximum length** - The longest valid subarray gives us the minimum removals
+
+### Why this works:
+
+- In a sorted array, if we fix the minimum element, all valid maximum elements form a contiguous range
+- We try every element as a potential minimum and find how far we can extend while maintaining the balance condition
+- The answer is `total elements - longest balanced subarray`
+
+## Java Solution
+```java
+class Solution {
+    public int minRemoval(int[] nums, int k) {
+        Arrays.sort(nums);
+        
+        int n = nums.length;
+        int maxLength = 0;
+        
+        for (int i = 0; i < n; i++) {
+            long maxAllowed = (long) nums[i] * k;
+            
+            int j = binarySearchUpperBound(nums, maxAllowed);
+            
+            maxLength = Math.max(maxLength, j - i);
+        }
+        
+        return n - maxLength;
+    }
+    
+    private int binarySearchUpperBound(int[] nums, long target) {
+        int left = 0, right = nums.length;
+        
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        
+        return left;
+    }
+}
+```
+
+## Complexity Analysis
+
+### Time Complexity: **O(n log n)**
+- Sorting the array: `O(n log n)`
+- For loop iterates `n` times
+- Each iteration performs binary search: `O(log n)`
+- Total: `O(n log n) + O(n * log n) = O(n log n)`
+
+### Space Complexity: **O(1)**
+- Only constant extra space is used
+- Sorting is done in-place (depending on sort implementation, may use `O(log n)` for recursion stack)
+- No additional data structures proportional to input size
+
+## Edge Cases Handled
+
+- Single element array (always balanced)
+- All elements need to be removed except one
+- Array already balanced (return 0)
+- Large values of `k` and `nums[i]` (using `long` to prevent overflow)
