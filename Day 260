@@ -1,0 +1,60 @@
+Day 260/300: Balance a Binary Search Tree
+
+Problem Statement #1382
+
+Probelem Statement Explantion:
+
+Given the root of a binary search tree, return a balanced binary search tree with the same node values. 
+If there is more than one answer, return any of them.
+A binary search tree is balanced if the depth of the two subtrees of every node never differs by more than one.
+
+Solution Approach:
+
+Since the input is already a Binary Search Tree (BST), we can leverage its properties to rebalance it efficiently.
+
+1. Flatten the Tree
+We perform an In-order Traversal (Left -> Root -> Right) to extract all node values. Because it is a BST, the resulting list is guaranteed to be in sorted order.
+
+2. Reconstruct via Binary Split
+To ensure the new tree is balanced, we use a recursive approach similar to binary search:
+Find the middle element of the sorted list and make it the current root.
+Recursively repeat the process for the left half of the list to build the left subtree.
+Recursively repeat the process for the right half of the list to build the right subtree.
+
+Here's the code:
+
+class Solution {
+    private List<TreeNode> sortedNodes = new ArrayList<>();
+
+    public TreeNode balanceBST(TreeNode root) {
+        inorderTraversal(root);
+        return buildBalancedTree(0, sortedNodes.size() - 1);
+    }
+
+    private void inorderTraversal(TreeNode root) {
+        if (root == null) return;
+        inorderTraversal(root.left);
+        sortedNodes.add(root);
+        inorderTraversal(root.right);
+    }
+
+    private TreeNode buildBalancedTree(int start, int end) {
+        if (start > end) return null;
+
+        int mid = start + (end - start) / 2;
+        TreeNode node = sortedNodes.get(mid);
+
+        node.left = buildBalancedTree(start, mid - 1);
+        node.right = buildBalancedTree(mid + 1, end);
+
+        return node;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+
+
+
