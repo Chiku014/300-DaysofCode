@@ -1,0 +1,66 @@
+Day 261/300: Longest Balanced Subarray I
+
+Problem Statement #3719
+
+Problem Statement Explantion:
+
+Given an integer array nums, find the length of the longest contiguous subarray where the number of distinct even numbers is equal to the number of distinct odd numbers.
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Solution Approach:
+
+Since the constraints for this problem are relatively small (n≤1500), we can use a Brute Force approach with an optimized check for distinct elements.
+
+Steps:
+Nested Loops: We iterate through every possible starting position i and ending position j to examine every subarray nums[i...j].
+Distinct Tracking: For each starting position, we reset a HashSet to keep track of unique numbers encountered as we expand the subarray.
+
+Parity Counting:
+
+If an element has not been seen in the current subarray, we check if it is even or odd.
+We increment the respective distinctEven or distinctOdd counter.
+Update Maximum: Whenever distinctEven == distinctOdd, we calculate the current subarray length (j - i + 1) and update our global maximum.
+
+Here's the code:
+
+import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public int longestBalanced(int[] nums) {
+        int n = nums.length;
+        int maxLen = 0;
+
+        for (int i = 0; i < n; i++) {
+            Set<Integer> seen = new HashSet<>();
+            int distinctEven = 0;
+            int distinctOdd = 0;
+
+            for (int j = i; j < n; j++) {
+                if (!seen.contains(nums[j])) {
+                    seen.add(nums[j]);
+                    
+                    if (nums[j] % 2 == 0) {
+                        distinctEven++;
+                    } else {
+                        distinctOdd++;
+                    }
+                }
+
+                if (distinctEven == distinctOdd) {
+                    maxLen = Math.max(maxLen, j - i + 1);
+                }
+            }
+        }
+
+        return maxLen;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n^2)
+Space Complexity: O(n)
+
+
+
