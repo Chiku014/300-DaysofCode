@@ -1,0 +1,61 @@
+Day 263: Longest Substring Without Repeating Characters
+
+Problem Statement #3
+
+Problem Statement Explanation:
+
+Given a string s, find the length of the longest substring without repeating characters.
+
+Example 1:
+Input: s = "abcabcbb"
+
+Output: 3
+Explanation: The answer is "abc", with the length of 3.
+
+Example 2:
+Input: s = "bbbbb"
+
+Output: 1
+Explanation: The answer is "b", with the length of 1.
+
+Solution Approach:
+
+To solve this efficiently, we use the Sliding Window technique with a HashSet.
+Initialize two pointers, left and right, both starting at the beginning of the string.
+Expand the window by moving the right pointer forward, adding characters to a HashSet.
+Handle Duplicates: If the character at right is already in the set, it means we have a repeating character. We must shrink the window from the left by removing characters from the set until the duplicate is gone.
+Update Result: At each step, calculate the current window size (right−left+1) and update our maximum length.
+
+Here's the code:
+
+import java.util.HashSet;
+
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int left = 0;
+        int right = 0;
+        int maxLen = 0;
+        HashSet<Character> set = new HashSet<>();
+
+        while (right < s.length()) {
+            char currentChar = s.charAt(right);
+            while (set.contains(currentChar)) {
+                set.remove(s.charAt(left));
+                left++;
+            }
+            
+            set.add(currentChar);
+            maxLen = Math.max(maxLen, right - left + 1);
+            right++;
+        }
+        
+        return maxLen;
+    }
+}
+
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(k)
+
