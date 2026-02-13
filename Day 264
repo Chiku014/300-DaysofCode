@@ -1,0 +1,70 @@
+Day 264/300: String to Intger (atoi)
+
+Problem Statenent #8
+
+Problem Statement Explantion:
+
+Implement the myAtoi(string s) function, which converts a string to a 32-bit signed integer.
+
+The algorithm for myAtoi(string s) is as follows:
+Whitespace: Read in and skip any leading whitespace.
+
+Signedness: Check if the next character (if not already at the end of the string) is '-' or '+'. Read this character in if it is either. 
+This determines if the final result is negative or positive respectively. Assume the result is positive if neither is present.
+
+Conversion: Read in next the characters until the next non-digit character or the end of the input is reached. The rest of the string is ignored.
+Rounding: If the integer is out of the 32-bit signed integer range [−2^31,2^31^−1], then clamp the integer so that it remains in the range.
+
+Integers less than −2^31^should be clamped to −2^31.
+Integers greater than 2^31^−1 should be clamped to 2^31^−1.
+Return the integer as the final result.
+
+Solution Approach:
+
+The solution follows a linear scan strategy to process the string in a single pass:
+Ignore Leading Spaces: Use a pointer to skip any ' ' characters at the start.
+Handle Sign: Identify if the number is positive or negative by checking the first non-space character.
+Digit Conversion: Iterate through the remaining characters. If a character is a digit (0-9), append it to the result. If a non-digit character is encountered, stop processing immediately.
+Overflow Protection: Since Java's int type has a fixed range, we use a long variable to store the intermediate result. Before casting back to int, we check if the value exceeds Integer.MAX_VALUE or Integer.MIN_VALUE.
+
+Here's the code:
+
+class Solution {
+    public int myAtoi(String s) {
+        if (s == null || s.isEmpty()) return 0;
+
+        int n = s.length();
+        int i = 0;
+
+        // 1. Skip whitespace
+        while (i < n && s.charAt(i) == ' ') i++;
+        if (i == n) return 0;
+
+        // 2. Check for sign
+        int sign = 1;
+        if (s.charAt(i) == '+' || s.charAt(i) == '-') {
+            sign = (s.charAt(i) == '-') ? -1 : 1;
+            i++;
+        }
+
+        // 3. Convert digits and handle overflow
+        long result = 0;
+        while (i < n && Character.isDigit(s.charAt(i))) {
+            result = result * 10 + (s.charAt(i) - '0');
+
+            if (sign == 1 && result > Integer.MAX_VALUE) return Integer.MAX_VALUE;
+            if (sign == -1 && -result < Integer.MIN_VALUE) return Integer.MIN_VALUE;
+            
+            i++;
+        }
+
+        return (int) (result * sign);
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+
+
