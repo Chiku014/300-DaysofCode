@@ -1,0 +1,39 @@
+Day 268/300: Jump Game
+
+Problem Statement #55
+
+Problem Statement Solution:
+
+You are given an integer array nums. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position.
+Return true if you can reach the last index, or false otherwise.
+
+Solution Approach:
+
+The goal is to determine if the last index is reachable. 
+Instead of exploring every possible jump (Backtracking) or storing sub-problem results (Dynamic Programming), we use a Greedy approach to track the furthest reachable index in a single pass.
+
+Step-by-Step Logic:
+Initialize a variable farthest to 0.
+Iterate through the array using a pointer i.
+If at any point i > farthest, it means the current index is unreachable; return false.
+Update farthest at each step: farthest = max(farthest, i + nums[i]).
+If farthest reaches or exceeds the last index (nums.length - 1), return true early.
+
+Here's the code:
+
+class Solution {
+    public boolean canJump(int[] nums) {
+        int farthest = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (i > farthest) return false;
+            farthest = Math.max(farthest, i + nums[i]);
+            if (farthest >= nums.length - 1) return true;
+        }
+        return true;
+    }
+}
+
+Complexity:
+
+Time Complexity:	O(n)
+Space Complexity:	O(1)
