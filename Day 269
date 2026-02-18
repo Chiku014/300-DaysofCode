@@ -1,0 +1,61 @@
+Day 269/300: Remove Nth node from end of List
+
+Problem Statement #19
+
+Problem Statement EXplantion:
+
+Given the head of a linked list, remove the nth node from the end of the list and return its head.
+
+Example 1:
+
+Input: head = [1,2,3,4,5], n = 2
+Output: [1,2,3,5]
+Example 2:
+Input: head = [1], n = 1
+Output: []
+
+Solution Approach:
+
+To solve this in a single pass, we use two pointers (fast and slow) and a dummy node.
+
+Initialize: Create a dummy node that points to the head. 
+This handles edge cases, such as removing the head of the list.
+Create a Gap: Advance the fast pointer n+1 steps forward. 
+This creates a gap of n nodes between the slow and fast pointers.
+Traverse: Move both pointers forward one step at a time until the fast pointer reaches null.
+Delete: Because of the gap, the slow pointer will now be pointing to the node immediately before the one we want to remove. 
+We skip the target node by setting slow.next = slow.next.next.
+Return: Return dummy.next.
+
+Here's the code:
+
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        
+        ListNode fast = dummy;
+        ListNode slow = dummy;
+
+        for (int i = 0; i <= n; i++) {
+            fast = fast.next;
+        }
+
+        while (fast != null) {
+            fast = fast.next;
+            slow = slow.next;
+        }
+
+        slow.next = slow.next.next;
+
+        return dummy.next;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(L)
+Space Complexity: O(1)
+
+
+
