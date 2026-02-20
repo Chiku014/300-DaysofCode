@@ -1,0 +1,68 @@
+Day 271/300: Count Complete Tree Nodes
+
+Problem Statement #222
+
+Problem Statement Explantion:
+
+Given the root of a complete binary tree, return the number of the nodes in the tree.
+
+According to Wikipedia, every level, except possibly the last, is completely filled in a complete binary tree, and all nodes in the last level are as far left as possible. 
+It can have between 1 and 2h nodes inclusive at the last level h.
+Design an algorithm that runs in less than O(n) time complexity.
+
+Solution Approach:
+
+A naive solution would visit every node (O(n)), but we can leverage the properties of a complete binary tree to achieve O(log^2n).
+
+1. The "Perfect Tree" Shortcut
+In a perfect binary tree, where all levels are fully filled, the total number of nodes is calculated by the formula:
+Nodes=2 height −1
+
+2. Implementation Strategy
+We calculate the left height (traversing only node.left) and the right height (traversing only node.right).
+If leftHeight == rightHeight, the tree is perfect. We return (1≪height)−1.
+If they are not equal, we cannot use the shortcut for the entire tree. We instead count the current root (1) and recursively call the function for the left and right subtrees.
+Due to the nature of complete trees, at least one of the subtrees will always be "perfect" at every step of the recursion.
+
+Here's the code:
+
+class Solution {
+    public int countNodes(TreeNode root) {
+        if (root == null) return 0;
+
+        int leftHeight = getLeftHeight(root);
+        int rightHeight = getRightHeight(root);
+
+        if (leftHeight == rightHeight) {
+            return (1 << leftHeight) - 1;
+        }
+
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+
+    private int getLeftHeight(TreeNode node) {
+        int height = 0;
+        while (node != null) {
+            height++;
+            node = node.left;
+        }
+        return height;
+    }
+
+    private int getRightHeight(TreeNode node) {
+        int height = 0;
+        while (node != null) {
+            height++;
+            node = node.right;
+        }
+        return height;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(log^2n)
+Space Complexity: O(logn)
+
+
+
