@@ -1,0 +1,59 @@
+Day 272/300: Recover Binary Search Tree
+
+Problem Statement #99
+
+Problem Statement Explantion:
+
+You are given the root of a binary search tree (BST), where the values of exactly two nodes of the tree were swapped by mistake. 
+Recover the tree without changing its structure.
+
+Solution Approach:
+
+In a valid Binary Search Tree, an in-order traversal visits nodes in a strictly increasing order. 
+If two nodes are swapped, the sorted sequence will have one or two "disruptions" where a larger value appears before a smaller value.
+
+Algorithm Steps
+Traverse: Perform an in-order traversal (Left -> Root -> Right).
+Identify: Keep track of the prev node visited.
+First Violation: The first time prev.val > root.val, the prev node is one of the swapped nodes.
+Second Violation: The last time prev.val > root.val, the root node is the other swapped node.
+Swap: After the traversal, swap the values of the two identified nodes.
+
+Here's the code:
+
+class Solution {
+    TreeNode first = null;
+    TreeNode second = null;
+    TreeNode prev = new TreeNode(Integer.MIN_VALUE);
+
+    public void recoverTree(TreeNode root) {
+        traverse(root);
+        int temp = first.val;
+        first.val = second.val;
+        second.val = temp;
+    }
+
+    private void traverse(TreeNode root) {
+        if (root == null) return;
+        
+        traverse(root.left);
+        
+        if (first == null && prev.val > root.val) {
+            first = prev;
+        }
+        if (first != null && prev.val > root.val) {
+            second = root;
+        }
+        prev = root;
+        
+        traverse(root.right);
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N)
+Space Complexity: O(H)
+
+
+
