@@ -1,0 +1,19 @@
+Day 274: Binary Codes Solution
+
+import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public boolean hasAllCodes(String s, int k) {
+        int totalNeeded = 1 << k; 
+        Set<String> seen = new HashSet<>();
+
+        for (int i = 0; i <= s.length() - k; i++) {
+            seen.add(s.substring(i, i + k));
+            if (seen.size() == totalNeeded) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
