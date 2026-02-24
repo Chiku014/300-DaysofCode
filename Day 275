@@ -1,0 +1,46 @@
+Day 275/300: Sum of Root To Leaf Binary Numbers
+
+Problem Statement #1022
+
+Problem Statement Explanation:
+
+You are given the root of a binary tree where each node has a value 0 or 1. 
+Each root-to-leaf path represents a binary number starting with the most significant bit.
+For example, if the path is 0 -> 1 -> 1 -> 0 -> 1, this could represent 01101 in binary, which is 13.
+For all leaves in the tree, consider the numbers represented by the path from the root to that leaf. Return the sum of these numbers.
+
+Solution Approach:
+
+The most efficient way to solve this is using a Depth First Search (DFS). As we traverse from the root to the leaves, we maintain the current value of the binary path.
+Bitwise Transformation: To append a bit (0 or 1) to the end of a binary number, we shift the current number to the left by one position and perform a bitwise OR with the new bit:
+currentSum=(currentSum≪1)∣node.val
+Base Case: If we reach a null node, we return 0.
+Leaf Node: If both the left and right children of a node are null, we have completed a path. We return the currentSum calculated so far.
+Recursive Step: If not a leaf, we recursively calculate the sum for the left and right subtrees and return their sum.
+
+Here's the code:
+
+class Solution {
+    public int sumRootToLeaf(TreeNode root) {
+        return dfs(root, 0);
+    }
+
+    private int dfs(TreeNode node, int currentSum) {
+        if (node == null) return 0;
+
+        currentSum = (currentSum << 1) | node.val;
+
+        if (node.left == null && node.right == null) {
+            return currentSum;
+        }
+
+        return dfs(node.left, currentSum) + dfs(node.right, currentSum);
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(H)
+
+
