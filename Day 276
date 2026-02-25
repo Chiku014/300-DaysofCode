@@ -1,0 +1,52 @@
+Day 276/300: Sort Integers by The Number of 1 Bits
+
+Problem Statement #1356
+
+Problem Statement Explantion:
+
+You are given an integer array arr. 
+Sort the integers in the array in ascending order by the number of 1's in their binary representation and in case of two or more integers have the same number of 1's you must sort them in ascending order.
+Return the array after sorting it.
+
+Solution Approach:
+
+To solve this problem efficiently in Java, we utilize a custom sorting strategy:
+
+Boxing: Since primitive int[] arrays do not support custom Comparators, we first map the elements to an Integer[] array.
+Custom Sorting: We use Arrays.sort() with a Lambda expression.
+Primary Sort: Compare the bit counts using Integer.bitCount().
+Secondary Sort: If bit counts are equal, compare the numerical values of the integers.
+Unboxing: Convert the sorted Integer[] back into the required int[] return type.
+
+Here's the code:
+
+class Solution {
+    public int[] sortByBits(int[] arr) {
+        Integer[] boxedArray = new Integer[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            boxedArray[i] = arr[i];
+        }
+
+        Arrays.sort(boxedArray, (a, b) -> {
+            int countA = Integer.bitCount(a);
+            int countB = Integer.bitCount(b);
+            return countA == countB ? a - b : countA - countB;
+        });
+
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = boxedArray[i];
+        }
+
+        return arr;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(NlogN)
+Space Complexity: O(N)
+
+
+
+
+
