@@ -1,0 +1,98 @@
+Day 278/300: Minimum Operations to Equalize Binary String
+
+Problem Statement #3666
+
+Problem Statement Explanation:
+
+You are given a binary string s and an integer k. 
+In one operation, you can choose exactly k distinct indices and flip their values (0 becomes 1, and 1 becomes 0).
+Return the minimum number of operations to make all characters in the string equal to '1'. If it is impossible, return -1.
+
+Solution Approach:
+
+The problem can be modeled as a Shortest Path problem on a graph where each state represents the count of zeros in the string.
+
+1. State Representation
+Instead of tracking the exact positions of zeros (which would lead to 2^n states), we only care about the number of zeros c. 
+There are n+1 possible states (0 to n).
+
+2. State Transitions
+If we have c zeros and flip x of them, we must also flip k−x ones.
+New count of zeros = (c−x)+(k−x)=c+k−2x.
+
+Constraints on x:
+
+x≤c (cannot flip more zeros than exist)
+x≤k (cannot flip more than k total bits)
+k−x≤n−c (cannot flip more ones than exist)
+By solving for x, we find the range of possible new zero-counts. Because 2x is always even, the parity of the new count is fixed by c+k.
+
+3. Optimization using TreeSet
+A standard BFS would check every possible x for every state, leading to O(n^2). 
+To optimize to O(nlogn):
+
+Use two TreeSet objects to store unvisited zero-counts (one for even counts, one for odd).
+For each state, calculate the mathematical lower bound L and upper bound R of reachable zeros.
+Use ts.ceiling(L) to quickly find and "consume" unvisited states within [L,R].
+
+Here's the code:
+
+import java.util.*;
+
+class Solution {
+    public int minOperations(String s, int k) {
+        int n = s.length();
+        int initialZeros = 0;
+        for (char c : s.toCharArray()) {
+            if (c == '0') initialZeros++;
+        }
+
+        if (initialZeros == 0) return 0;
+
+        TreeSet<Integer>[] ts = new TreeSet[2];
+        ts[0] = new TreeSet<>();
+        ts[1] = new TreeSet<>();
+
+        for (int i = 0; i <= n; i++) {
+            ts[i % 2].add(i);
+        }
+
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(initialZeros);
+        ts[initialZeros % 2].remove(initialZeros);
+        
+        int steps = 0;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            steps++;
+            for (int i = 0; i < size; i++) {
+                int cur = queue.poll();
+
+                int minFlippedZeros = Math.max(0, k - (n - cur));
+                int maxFlippedZeros = Math.min(cur, k);
+                
+                int L = cur + k - 2 * maxFlippedZeros;
+                int R = cur + k - 2 * minFlippedZeros;
+
+                TreeSet<Integer> targetSet = ts[L % 2];
+                Integer val = targetSet.ceiling(L);
+                while (val != null && val <= R) {
+                    if (val == 0) return steps;
+                    queue.offer(val);
+                    targetSet.remove(val);
+                    val = targetSet.ceiling(L);
+                }
+            }
+        }
+
+        return -1;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(nlogn)	
+Space Complexity:	O(n)
+
+
+
