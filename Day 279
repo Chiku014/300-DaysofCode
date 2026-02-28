@@ -1,0 +1,50 @@
+Day 279/300: Concatenation of Consecutive Binary Numbers
+
+Problem Statement #1680
+
+Problem Statement Explanation:
+
+Given an integer n, return the decimal value of the binary string formed by concatenating the binary representations of 1 to n in order, modulo 10^9+7.
+
+Example:
+Input: n = 3
+Binary representations: 1 -> "1", 2 -> "10", 3 -> "11"
+Concatenation: "11011"
+Decimal Result: 27
+
+Solution Approach:
+
+To avoid memory overflow and unnecessary string manipulations, we use a bitwise approach:
+
+Iterate from i=1 to n.
+Determine Bit Length: We need to know how many bits the current number i occupies. A new bit is required every time i is a power of 2 (e.g., 1, 2, 4, 8...). We track this in binaryLength.
+Shift and Combine: * Shift the current result to the left by binaryLength positions. This creates a "gap" for the new bits.
+Use a bitwise OR (or addition) to place the binary form of i into that gap.
+Modulo Operation: Since the number grows exponentially, we apply % 1_000_000_007 at every step.
+
+Here's the codee:
+
+class Solution {
+    public int concatenatedBinary(int n) {
+        long MOD = 1_000_000_007;
+        long result = 0;
+        int binaryLength = 0;
+
+        for (int i = 1; i <= n; i++) {
+            if ((i & (i - 1)) == 0) {
+                binaryLength++;
+            }
+            result = ((result << binaryLength) | i) % MOD;
+        }
+
+        return (int) result;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+
+
+
