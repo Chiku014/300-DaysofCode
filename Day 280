@@ -1,0 +1,50 @@
+Day 280/300: Partitioning Into Minimum Number Of Deci-Binary Numbers
+
+Problem Statement #1689
+
+Problem Statement Explanation:
+
+A decimal number is called deci-binary if each of its digits is either 0 or 1 without any leading zeros. 
+For example, 101 and 1100 are deci-binary, while 112 and 3001 are not.
+Given a string n that represents a positive decimal integer, return the minimum number of positive deci-binary numbers needed so that they sum up to n.
+
+Solution Approach:
+
+The core trick to this problem is understanding that a deci-binary number can only contribute a maximum value of 1 to any specific digit position (ones, tens, hundreds, etc.).
+If the input string n contains a digit d at any position, you must have at least d deci-binary numbers to reach that sum for that specific column. For example:
+If n=3, you need 1+1+1 (3 numbers).
+
+If n=32, the '3' in the tens place requires three deci-binary numbers (like 10, 10, 10). 
+The '2' in the ones place only requires two (like 1, 1, 0). The "bottleneck" is the largest digit.
+Therefore, the answer is simply the maximum digit present in the string.
+
+Initialize a variable maxDigit to 0.
+Iterate through each character of the string n.
+Convert the character to its integer value.
+Update maxDigit if the current digit is larger.
+Optimization: If maxDigit reaches 9, return immediately, as no digit can be higher than 9.
+Return maxDigit.
+
+Here's the code:
+
+class Solution {
+    public int minPartitions(String n) {
+        int maxDigit = 0;
+        for (int i = 0; i < n.length(); i++) {
+            int currentDigit = n.charAt(i) - '0';
+            if (currentDigit > maxDigit) {
+                maxDigit = currentDigit;
+            }
+            if (maxDigit == 9) return 9;
+        }
+        return maxDigit;
+    }
+}
+
+Complexity:
+
+Time	Complexity: O(L)
+Space Complexity: O(n)
+
+
+
