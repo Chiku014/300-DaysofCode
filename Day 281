@@ -1,0 +1,77 @@
+Day 281/300:  Minimum Swaps to Arrange a Binary Grid
+
+Problem Statement #1536
+
+Problem Statement Explantion:
+
+Given an n×n binary grid, in one step you can choose two adjacent rows of the grid and swap them.
+A grid is said to be valid if for all 0≤i<n, the i-th row contains at least n−i−1 trailing zeros.
+Return the minimum number of steps needed to make the grid valid, or -1 if the grid cannot be made valid.
+
+Solution Approach:
+
+The problem requires us to satisfy a specific condition for each row i: it must have a certain number of trailing zeros. 
+Since we can only swap adjacent rows, this is a variation of the Bubble Sort algorithm.
+
+1. Pre-processing
+We first convert each row into a single integer representing the count of trailing zeros. 
+This simplifies the grid into a 1D array, making the swaps easier to manage.
+
+2. Greedy Selection
+For each position i in the grid (from top to bottom):
+Calculate the required number of trailing zeros: n−1−i.
+
+Search from the current row i downwards to find the first row that satisfies this requirement.
+We pick the first available row because using a row that has "extra" zeros than needed might be better saved for a later row that has a stricter requirement.
+
+3. Simulating Swaps
+Once a valid row is found at index j, we swap it with its neighbor repeatedly until it reaches index i. 
+Each of these steps counts as one swap. If no such row is found after scanning the remaining rows, the configuration is impossible, and we return -1.
+
+Here's the Code:
+
+class Solution {
+    public int minSwaps(int[][] grid) {
+        int n = grid.length;
+        int[] trailingZeros = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            int count = 0;
+            for (int j = n - 1; j >= 0; j--) {
+                if (grid[i][j] == 0) count++;
+                else break;
+            }
+            trailingZeros[i] = count;
+        }
+
+        int swaps = 0;
+        for (int i = 0; i < n; i++) {
+            int required = n - 1 - i;
+            int foundIdx = -1;
+
+            for (int j = i; j < n; j++) {
+                if (trailingZeros[j] >= required) {
+                    foundIdx = j;
+                    break;
+                }
+            }
+
+            if (foundIdx == -1) return -1;
+
+            for (int j = foundIdx; j > i; j--) {
+                int temp = trailingZeros[j];
+                trailingZeros[j] = trailingZeros[j - 1];
+                trailingZeros[j - 1] = temp;
+                swaps++;
+            }
+        }
+
+        return swaps;
+    }
+}
+
+Complexity:
+
+Time Complexity:	O(n^2)
+Space Complexity: O(n)
+
