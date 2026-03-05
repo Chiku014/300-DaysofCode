@@ -1,0 +1,56 @@
+Day 284/300: Minimum Changes To Make Alternating Binary String
+
+Problem Statement #1758
+
+Problem Statement Explantion:
+
+You are given a string s consisting only of the characters '0' and '1'. In one operation, you can change any '0' to '1' or vice versa.
+The string is called alternating if no two adjacent characters are equal. For example, the string "010" is alternating, while the string "0100" is not.
+Return the minimum number of operations needed to make the string alternating.
+
+Solution Approach:
+
+An alternating binary string of length n can only follow one of two possible patterns:
+
+Pattern A: Starts with 0 (e.g., 010101...)
+Pattern B: Starts with 1 (e.g., 101010...)
+
+Key Insight
+The number of operations required to achieve Pattern B is simply n−(operations for Pattern A). 
+This is because every character that matches Pattern A will necessarily mismatch Pattern B, and vice versa.
+
+Steps:
+
+Iterate through the string once.
+Assume we want to match Pattern A (starts with 0).
+For every even index i, the character should be '0'.
+For every odd index i, the character should be '1'.
+Count how many characters in the input string s do not match this pattern.
+The answer is the minimum of count and s.length() - count
+
+Here's the Code:
+
+class Solution {
+    public int minOperations(String s) {
+        int count0 = 0;
+        int n = s.length();
+        
+        for (int i = 0; i < n; i++) {
+            if (i % 2 == 0) {
+                if (s.charAt(i) != '0') count0++;
+            } else {
+                if (s.charAt(i) != '1') count0++;
+            }
+        }
+        
+        return Math.min(count0, n - count0);
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+
+
+
