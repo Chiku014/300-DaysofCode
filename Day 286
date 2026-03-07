@@ -1,0 +1,59 @@
+Day 286/300: Minimum Number of Flips to Make the Binary String Alternating
+
+Problem Statement #1888
+
+Problem Statement Explanation:
+
+Given a binary string s, you can perform two types of operations:
+Type 1: Remove the first character of the string and append it to the end.
+Type 2: Choose any character in the string and flip it (0→1 or 1→0).
+Return the minimum number of Type 2 operations (flips) needed to make s alternating after any number of Type 1 operations.
+An alternating string is a string where no two adjacent characters are equal (e.g., "0101" or "1010").
+
+Solution Approach:
+
+The core challenge is the Type 1 operation. 
+Instead of physically rotating the string, we can simulate all possible rotations by doubling the string: s + s. 
+Any substring of length n within this doubled string represents a valid state achievable via Type 1 operations.
+
+Key Logic
+Target Patterns: There are only two possible alternating strings for any given length: one starting with 0 and one starting with 1.
+Sliding Window: We maintain a window of size n and slide it across the doubled string.
+Difference Tracking: We count how many characters in the current window differ from the two target patterns.
+Update Min: As we slide the window (adding one character on the right and removing one from the left), we update the total differences and track the global minimum.
+
+Here's the Code:
+
+class Solution {
+    public int minFlips(String s) {
+        int n = s.length();
+        int diff1 = 0, diff2 = 0;
+        int minFlips = Integer.MAX_VALUE;
+        
+        for (int i = 0; i < 2 * n; i++) {
+            char c = s.charAt(i % n);
+            
+            if (c != (i % 2 == 0 ? '0' : '1')) diff1++;
+            if (c != (i % 2 == 0 ? '1' : '0')) diff2++;
+            
+            if (i >= n) {
+                if (s.charAt((i - n) % n) != ((i - n) % 2 == 0 ? '0' : '1')) diff1--;
+                if (s.charAt((i - n) % n) != ((i - n) % 2 == 0 ? '1' : '0')) diff2--;
+            }
+            
+            if (i >= n - 1) {
+                minFlips = Math.min(minFlips, Math.min(diff1, diff2));
+            }
+        }
+        
+        return minFlips;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity:	O(1)
+
+
+
