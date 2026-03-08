@@ -1,0 +1,38 @@
+Day 287/300: 
+
+Problem Statement #1980
+
+Problem Statement Explantion:
+
+Given an array of strings nums containing n unique binary strings each of length n, return a binary string of length n that does not appear in nums. 
+If there are multiple answers, you may return any of them
+
+Solution Approach:
+
+While this problem can be solved using a Hash Set or Backtracking, the most efficient approach is based on Cantor's Diagonal Argument.
+The logic is to construct a string res such that it differs from every string in nums at at least one specific index. 
+We do this by iterating through the input array and, for each index i, making the i-th character of our result the opposite of the i-th character of nums[i].
+For the first string nums[0], we flip its first character. Our result is now guaranteed to be different from nums[0].
+For the second string nums[1], we flip its second character. Our result is now guaranteed to be different from both nums[0] and nums[1].
+We repeat this for all n strings.
+
+Here's the Code:
+
+class Solution {
+    public String findDifferentBinaryString(String[] nums) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < nums.length; i++) {
+            char currentChar = nums[i].charAt(i);
+            sb.append(currentChar == '0' ? '1' : '0');
+        }
+        return sb.toString();
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+
+
+
