@@ -1,0 +1,72 @@
+Day 288/300: Find All Possible Stable Binary Arrays I
+
+Problem Statement #3129
+
+Problem Statement Explanation:
+
+You are given three integers zero, one, and limit. 
+A binary array is called stable if:
+It contains exactly zero occurrences of 0.
+It contains exactly one occurrences of 1.
+No subarray contains more than limit consecutive elements of the same value.
+Return the total number of stable binary arrays. Since the answer may be very large, return it modulo 10^9+7.
+
+Solution Approach:
+
+The challenge is to count arrangements while ensuring no "clumps" of 0s or 1s exceed the limit. Think of this as building a string digit by digit, where each choice is constrained by how many identical digits we just placed.
+
+Solution Approach: Dynamic Programming
+We use a 3D Dynamic Programming table dp[i][j][k], where:
+
+i: Number of 0s used so far.
+j: Number of 1s used so far.
+k: The last digit placed (0 or 1).
+
+State Transitions
+Adding a 0: To form dp[i][j][0], we can append a 0 to any stable array that used i-1 zeros and j ones.
+dp[i][j][0] = dp[i-1][j][0] + dp[i-1][j][1]
+
+Handling the Limit: If the number of zeros i exceeds limit, we must subtract the cases that became "unstable" by adding that last zero. 
+An array becomes unstable only if it already had exactly limit zeros at the end.
+The "bad" cases are those where we had i - limit - 1 zeros, then a 1, followed by exactly limit zeros.
+Subtraction: dp[i][j][0] = (dp[i][j][0] - dp[i-limit-1][j][1])
+
+Base Cases
+Arrays consisting only of 0s (up to limit) are valid: dp[i][0][0] = 1.
+Arrays consisting only of 1s (up to limit) are valid: dp[0][j][1] = 1.
+
+Here's the Code:
+
+class Solution {
+    public int numberOfStableArrays(int zero, int one, int limit) {
+        final int MOD = 1_000_000_007;
+        long[][][] dp = new long[zero + 1][one + 1][2];
+
+        for (int i = 0; i <= Math.min(zero, limit); i++) dp[i][0][0] = 1;
+        for (int j = 0; j <= Math.min(one, limit); j++) dp[0][j][1] = 1;
+
+        for (int i = 1; i <= zero; i++) {
+            for (int j = 1; j <= one; j++) {
+                dp[i][j][0] = (dp[i - 1][j][0] + dp[i - 1][j][1]) % MOD;
+                if (i > limit) {
+                    dp[i][j][0] = (dp[i][j][0] - dp[i - limit - 1][j][1] + MOD) % MOD;
+                }
+
+                dp[i][j][1] = (dp[i][j - 1][0] + dp[i][j - 1][1]) % MOD;
+                if (j > limit) {
+                    dp[i][j][1] = (dp[i][j][1] - dp[i][j - limit - 1][0] + MOD) % MOD;
+                }
+            }
+        }
+
+        return (int) ((dp[zero][one][0] + dp[zero][one][1]) % MOD);
+    }
+}
+
+Complexity:
+
+Time Complexity: O(1)
+Space Complexity: O(1)
+
+
+
