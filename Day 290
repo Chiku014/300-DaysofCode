@@ -1,0 +1,50 @@
+Day 290/300: Complement of Base 10 Integer
+
+Problem Statement #1009
+
+Problem Statement Explantion:
+
+The complement of an integer is the integer you get when you flip all the 0's to 1's and all the 1's to 0's in its binary representation.
+For example, the integer 5 is "101" in binary, and its complement is "010", which is the integer 2.
+Given an integer n, return its complement.
+
+Solution Approach:
+
+To find the complement, we cannot simply use the bitwise NOT operator (~) in Java because it operates on the full 32-bit integer (including leading zeros), which would result in a negative number due to the signed bit.
+Instead, we use a Bitwise XOR Mask strategy:
+Handle Edge Case: If n=0, the binary is 0, so the complement is 1.
+Find the Bit Length: We need to determine how many bits are used to represent n.
+Create a Mask: We construct a number consisting of all 1s that has the same bit-length as n.
+Example: If n=5 (101), our mask should be 7 (111).
+XOR Operation: XORing n with the mask flips every bit.
+101 ^ 111 = 010 (Decimal 2).
+
+Here's the Code:
+
+class Solution {
+    public int bitwiseComplement(int n) {
+        if (n == 0) return 1;
+        
+        int mask = 0;
+        int temp = n;
+        
+        while (temp > 0) {
+            mask = (mask << 1) | 1;
+            temp >>= 1;
+        }
+        
+        return n ^ mask;
+    }
+}
+
+Complexity:
+
+Time Complexity	O(logN)
+Space Complexity	O(1)
+
+
+
+
+
+
+
