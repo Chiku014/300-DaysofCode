@@ -1,0 +1,75 @@
+Day 292/300: Minimum Number of Seconds to Make Mountain Height Zero
+
+Problem Statement #3296
+
+Problem Statement Explanation:
+
+You are given an integer mountainHeight and an array workerTimes representing the base time each worker takes to reduce the mountain height.
+
+For a worker i, reducing the mountain height by x units takes:
+
+workerTimes[i]×(1+2+3+⋯+x) seconds
+Each worker can work simultaneously. Your goal is to find the minimum number of seconds required to reduce the mountainHeight to 0.
+
+Solution Approach:
+
+You are given an integer mountainHeight and an array workerTimes representing the base time each worker takes to reduce the mountain height.
+
+For a worker i, reducing the mountain height by x units takes: 
+
+workerTimes[i]×(1+2+3+⋯+x) seconds
+
+Each worker can work simultaneously. Your goal is to find the minimum number of seconds required to reduce the mountainHeight to 0.
+
+Here's the Code:
+
+class Solution {
+    public long minNumberOfSeconds(int mountainHeight, int[] workerTimes) {
+        long low = 1;
+        long maxWorkerTime = 0;
+        for (int time : workerTimes) {
+            maxWorkerTime = Math.max(maxWorkerTime, (long)time);
+        }
+        
+        long high = (long) workerTimes[0] * mountainHeight * (mountainHeight + 1) / 2;
+        for (int time : workerTimes) {
+            high = Math.min(high, (long) time * mountainHeight * (mountainHeight + 1) / 2);
+        }
+        
+        long result = high;
+
+        while (low <= high) {
+            long mid = low + (high - low) / 2;
+            if (canReduce(mountainHeight, workerTimes, mid)) {
+                result = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return result;
+    }
+
+    private boolean canReduce(int targetHeight, int[] workerTimes, long maxTime) {
+        long totalHeightRemoved = 0;
+        for (int wTime : workerTimes) {
+            long limit = (2 * maxTime) / wTime;
+            long x = (long) ((-1 + Math.sqrt(1 + 4 * limit)) / 2);
+            totalHeightRemoved += x;
+            if (totalHeightRemoved >= targetHeight) return true;
+        }
+        return totalHeightRemoved >= targetHeight;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(N⋅log(MaxTime))
+Space Complexity: O(1)
+
+
+
+
+
+
+
