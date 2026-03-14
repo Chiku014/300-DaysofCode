@@ -1,0 +1,71 @@
+Day 293/300: The k-th Lexicographical String of All Happy Strings of Length n
+
+Problem Statement #1415
+
+Problem Statement Explantoion:
+A happy string is a string that:
+Consists only of letters of the set ['a', 'b', 'c'].
+s[i] != s[i + 1] for all values of i from 1 to s.length - 1 (string is 1-indexed).
+
+Given two integers n and k, consider a list of all happy strings of length n sorted lexicographically. 
+Return the kth string of this list or return an empty string if there are less than k happy strings of length n.
+
+Solution Approach:
+
+Since the requirement is to find the k 
+th
+  string in lexicographical order, a Backtracking (DFS) approach is the most intuitive. By exploring choices in the order of 'a' -> 'b' -> 'c', the first strings that reach length n will naturally be in the correct sorted order.
+
+Key Logic:
+Exploration: Start with an empty string and try adding 'a', 'b', or 'c'.
+
+Constraint: Only add a character if it is different from the last character added to the current string.
+
+Base Case: Once the string length equals n, increment a counter.
+
+Target: When the counter equals k, store the current string as the result and terminate the search.
+
+Pruning: If at any point k is greater than the maximum possible happy strings (3×2 
+n−1
+ ), we can return an empty string immediately.
+
+Here's the Code:
+
+class Solution {
+    private int count = 0;
+    private String result = "";
+
+    public String getHappyString(int n, int k) {
+        if (k > 3 * Math.pow(2, n - 1)) return "";
+        backtrack(n, k, new StringBuilder());
+        return result;
+    }
+
+    private void backtrack(int n, int k, StringBuilder current) {
+        if (!result.isEmpty()) return;
+
+        if (current.length() == n) {
+            count++;
+            if (count == k) result = current.toString();
+            return;
+        }
+
+        for (char c : new char[]{'a', 'b', 'c'}) {
+            if (current.length() > 0 && current.charAt(current.length() - 1) == c) continue;
+
+            current.append(c);
+            backtrack(n, k, current);
+            current.deleteCharAt(current.length() - 1);
+        }
+    }
+}
+
+Complexity:
+
+Time Complexity: 	O(k⋅n)
+Space Complexity: O(n)
+
+
+
+
+
