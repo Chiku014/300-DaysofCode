@@ -1,0 +1,70 @@
+Day 295: Largest Submatrix With Rearrangements
+
+Problem Statement #1757
+
+Problem Statement Explanation:
+
+Given a binary matrix matrix of size m x n, you are allowed to rearrange the columns of the matrix in any order.
+Return the area of the largest submatrix within matrix where every element of the submatrix is 1 after reordering the columns optimally.
+
+Solution Approach:
+
+The core idea is to treat each row as the bottom of a potential rectangle. Since we can rearrange columns freely, we only care about how many consecutive 1s are available above each cell in a given row.
+
+1. Preprocessing Heights
+We iterate through the matrix from top to bottom. 
+For each cell matrix[i][j], if the value is 1, we update it to be the count of consecutive 1s ending at that cell:
+If matrix[i][j] == 1, then matrix[i][j] = matrix[i-1][j] + 1.
+If matrix[i][j] == 0, it remains 0.
+
+2. Greedy Rearrangement
+For each row, we now have a set of "heights." To maximize the area of a submatrix ending at this row:
+
+Sort the heights in the current row in descending order (or ascending and iterate backward).
+By sorting, we ensure that we can form a rectangle of height h with a width equal to the number of columns that have a height ≥h.
+Calculate the area for each possible width: Area=height×width.
+
+3. Global Maximum
+Track the largest area found across all rows and all possible column combinations.
+
+Here's the Code:
+
+import java.util.Arrays;
+
+class Solution {
+    public int largestSubmatrix(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        int maxArea = 0;
+
+        for (int i = 1; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (matrix[i][j] == 1) {
+                    matrix[i][j] += matrix[i - 1][j];
+                }
+            }
+        }
+
+        for (int i = 0; i < rows; i++) {
+            int[] currentRow = matrix[i].clone();
+            Arrays.sort(currentRow);
+
+            for (int k = 0; k < cols; k++) {
+                int height = currentRow[k];
+                int width = cols - k;
+                maxArea = Math.max(maxArea, height * width);
+            }
+        }
+
+        return maxArea;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(m⋅nlogn)
+Space Complexity: O(n)
+
+
+
+
