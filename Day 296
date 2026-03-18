@@ -1,0 +1,61 @@
+Day 296/300: Count Submatrices with Top-Left Element and Sum Less Than k
+
+Problem Statement: #3070
+
+Problem Statement EXplantion:
+
+You are given a 0-indexed 2D integer matrix grid and an integer k.
+Return the number of submatrices that contain the top-left element grid[0][0] and have a sum less than or equal to k.
+
+Solution Approach:
+
+Since every valid submatrix must include the top-left corner (0,0), we are essentially looking for all submatrices ending at any cell (i,j) such that the sum of the rectangle from (0,0) to (i,j) is ≤k.
+
+Core Logic
+We use the 2D Prefix Sum formula to calculate the sum of the submatrix ending at (i,j) in O(1) time by leveraging previously computed values:
+
+S[i][j]=grid[i][j]+S[i−1][j]+S[i][j−1]−S[i−1][j−1]
+Initialization: Create a 2D array prefixSum of size (rows+1)×(cols+1) to handle boundary cases (where i=0 or j=0) without extra if statements.
+
+Iteration: Traverse the grid row by row.
+Condition: If prefixSum[i][j] <= k, increment the counter.
+Optimization: Since all elements in the grid are non-negative, if prefixSum[i][j] > k, then any further submatrix in the same row (to the right) will also exceed k. We can safely break the inner loop for that row.
+
+Here's the Code:
+
+class Solution {
+    public int countSubmatrices(int[][] grid, int k) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int count = 0;
+        int[][] prefixSum = new int[rows + 1][cols + 1];
+        
+        for (int i = 1; i <= rows; i++) {
+            for (int j = 1; j <= cols; j++) {
+                prefixSum[i][j] = grid[i - 1][j - 1] 
+                                + prefixSum[i - 1][j] 
+                                + prefixSum[i][j - 1] 
+                                - prefixSum[i - 1][j - 1];
+                
+                if (prefixSum[i][j] <= k) {
+                    count++;
+                } else {
+                    break; 
+                }
+            }
+        }
+        
+        return count;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(M×N)
+Space Complexity: O(M×N)
+
+
+
+
+
+
