@@ -1,0 +1,57 @@
+Day 297/300: Count Submatrices With Equal Frequency of X and Y
+
+Problem Statement #3212
+
+Problem Statement Explantion:
+
+Given a 2D character matrix grid, find the total number of submatrices that satisfy the following conditions:
+The submatrix includes the top-left element grid[0][0].
+The frequency of 'X' in the submatrix is equal to the frequency of 'Y'.
+The frequency of 'X' is at least 1.
+
+Solution Approach: 2D Prefix Sums
+Since every valid submatrix must start at the origin (0,0), we only need to evaluate submatrices ending at each possible (i,j) coordinate.
+To do this efficiently, we use a 2D Prefix Sum technique:
+We maintain two 2D arrays (or a single optimized one), countX and countY.
+The value at countX[i+1][j+1] represents the total number of 'X' characters in the rectangle from (0,0) to (i,j).
+The formula used to calculate the sum for the current cell (i,j) is:
+Current Sum=Top+Left−Diagonal+Current Cell Value
+For every (i,j), we check if the accumulated countX equals countY and if countX > 0.
+
+Here's the Code:
+
+class Solution {
+    public int numberOfSubmatrices(char[][] grid) {
+        int rows = grid.length;
+        int cols = grid[0].length;
+        int[][] countX = new int[rows + 1][cols + 1];
+        int[][] countY = new int[rows + 1][cols + 1];
+        int result = 0;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                countX[i + 1][j + 1] = countX[i][j + 1] + countX[i + 1][j] - countX[i][j] + (grid[i][j] == 'X' ? 1 : 0);
+                countY[i + 1][j + 1] = countY[i][j + 1] + countY[i + 1][j] - countY[i][j] + (grid[i][j] == 'Y' ? 1 : 0);
+
+                if (countX[i + 1][j + 1] > 0 && countX[i + 1][j + 1] == countY[i + 1][j + 1]) {
+                    result++;
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(MxN)
+Space Complexity: O(MxN)
+
+
+
+
+
+
+
+
