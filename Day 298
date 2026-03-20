@@ -1,0 +1,77 @@
+Day 298/300: Minimum Absolute Difference in Sliding Submatrix
+
+Problem Statement #3567
+
+Problem Statement Explantion:
+
+Given an m x n integer matrix grid and an integer k, find the minimum absolute difference between any two distinct elements within every possible k x k submatrix.
+The result should be returned as a 2D array ans of size (m - k + 1) x (n - k + 1), where ans[i][j] is the minimum absolute difference found in the submatrix starting at grid[i][j].
+Note: If a submatrix contains duplicate elements, the minimum absolute difference is 0. 
+If a submatrix contains fewer than two distinct elements, the difference is typically defined as 0.
+
+Solution Approach:
+
+Since we need to find the minimum difference between numbers in a dynamic set, a TreeSet is the ideal data structure. 
+It keeps elements in sorted order, allowing us to find the smallest gap by only comparing adjacent elements.
+
+Steps:
+Iterate through Submatrices: Use a nested loop to identify the top-left corner (i, j) of every valid k x k window.
+Collect Elements: For each window, iterate through its k 2 elements.
+Handle Duplicates: Use the TreeSet.add() method. If it returns false, it means the element already exists in the current window, making the minimum difference 0 immediately.
+Calculate Gaps: If no duplicates exist, iterate through the sorted TreeSet. The minimum difference must be between two consecutive elements (e.g., vali+1−vali).
+
+Edge Cases:
+
+k=1: Result is always 0 as there are no pairs.
+Large Values: Use long during subtraction if the problem constraints allow for values near Integer.MAX_VALUE.
+
+Here's the Code:
+
+import java.util.*;
+
+class Solution {
+    public int[][] minAbsDiff(int[][] grid, int k) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int rowRes = m - k + 1;
+        int colRes = n - k + 1;
+        int[][] ans = new int[rowRes][colRes];
+
+        for (int i = 0; i < rowRes; i++) {
+            for (int j = 0; j < colRes; j++) {
+                ans[i][j] = calculateMinDiff(grid, i, j, k);
+            }
+        }
+        return ans;
+    }
+
+    private int calculateMinDiff(int[][] grid, int r, int c, int k) {
+        TreeSet<Integer> set = new TreeSet<>();
+        
+        for (int i = r; i < r + k; i++) {
+            for (int j = c; j < c + k; j++) {
+                // If element is a duplicate, the difference is 0
+                if (!set.add(grid[i][j])) return 0;
+            }
+        }
+
+        if (set.size() < 2) return 0;
+
+        int minDiff = Integer.MAX_VALUE;
+        Integer prev = null;
+        
+        for (int current : set) {
+            if (prev != null) {
+                minDiff = Math.min(minDiff, current - prev);
+            }
+            prev = current;
+        }
+
+        return minDiff;
+    }
+}
+
+Complexity:
+
+Time Complexity: O((m−k+1)⋅(n−k+1)⋅k2 log(k^2))
+Space Complexity: O(k^2)
