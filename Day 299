@@ -1,0 +1,49 @@
+Day 299/300: Flip Square Submatrix Vertically
+
+Problem Statement #3643
+
+Problem Statement Explanation:
+
+Given a 2D integer matrix grid and three integers x, y, and k, perform a vertical flip on a square submatrix. 
+The submatrix is defined by its top-left corner at coordinates (x, y) and has a side length of k.
+
+A vertical flip means:
+
+The first row of the submatrix is swapped with the last row of the submatrix.
+The second row is swapped with the second-to-last row, and so on.
+Elements within the rows maintain their relative horizontal order.
+
+Solution Approach:
+
+The solution employs a two-pointer row-swapping strategy confined within the submatrix boundaries:
+Identify the Row Range: The submatrix rows range from index x to x+k−1.
+Symmetric Swapping: We iterate through the first half of these rows (up to k/2).
+Calculate Mirror Indices: For any row at offset i (where 0≤i<k/2), the target row to swap with is located at the bottom offset k−1−i.
+In-place Column Swap: For each pair of rows, we iterate through the columns from y to y+k−1 and swap the elements.
+This approach is efficient because it modifies the grid in-place without requiring additional matrix storage.
+
+Here's the Code:
+
+class Solution {
+    public int[][] reverseSubmatrix(int[][] grid, int x, int y, int k) {
+        for (int i = 0; i < k / 2; i++) {
+            int row1 = x + i;
+            int row2 = x + k - 1 - i;
+
+            for (int j = y; j < y + k; j++) {
+                int temp = grid[row1][j];
+                grid[row1][j] = grid[row2][j];
+                grid[row2][j] = temp;
+            }
+        }
+        return grid;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(k^2)
+Space Complexity: O(1)
+
+
+
