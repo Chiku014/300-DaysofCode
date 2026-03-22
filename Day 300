@@ -1,0 +1,72 @@
+Day 300/300: Determine Whether Matrix Can Be Obtained By Rotation
+
+Problem Statement #1886
+
+Problem Statement Explantion:
+
+Given two n×n binary matrices mat and target, return true if it is possible to make mat equal to target by rotating mat in 90-degree increments (0, 90, 180, or 270 degrees).
+
+Solution Approach:
+
+The most efficient way to rotate a square matrix 90 degrees clockwise in-place involves two linear transformations:
+Transpose the Matrix: Convert all rows into columns by swapping elements at mat[i][j] with mat[j][i].
+Reverse Each Row: Flip the elements of each row horizontally.
+Since there are only four possible orientations, the algorithm:
+Compares the current mat with target.
+If they don't match, it performs one 90-degree rotation.
+Repeats this process up to 4 times. If no match is found after a full 360∘ cycle, the answer is false.
+
+Here's the Code:
+
+class Solution {
+    public boolean findRotation(int[][] mat, int[][] target) {
+        for (int i = 0; i < 4; i++) {
+            if (isEqual(mat, target)) {
+                return true;
+            }
+            rotate(mat);
+        }
+        return false;
+    }
+
+    private void rotate(int[][] mat) {
+        int n = mat.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = i; j < n; j++) {
+                int temp = mat[i][j];
+                mat[i][j] = mat[j][i];
+                mat[j][i] = temp;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            int left = 0, right = n - 1;
+            while (left < right) {
+                int temp = mat[i][left];
+                mat[i][left] = mat[i][right];
+                mat[i][right] = temp;
+                left++;
+                right--;
+            }
+        }
+    }
+
+    private boolean isEqual(int[][] mat, int[][] target) {
+        for (int i = 0; i < mat.length; i++) {
+            for (int j = 0; j < mat[0].length; j++) {
+                if (mat[i][j] != target[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n^2)
+Space Complexity: O(1)
+
+
+
+
