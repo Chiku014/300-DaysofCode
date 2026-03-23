@@ -1,0 +1,92 @@
+Day 301/350: 
+
+Here is a structured, Markdown-formatted README content you can use for your GitHub repository. It’s designed to be clean, professional, and easy for others to follow.
+
+---
+
+# LeetCode 1594: Maximum Non-Negative Product in a Matrix
+
+## Problem Statement
+You are given a `m x n` grid. Initially, you are at the cell `(0, 0)` and you want to reach the cell `(m - 1, n - 1)`. Each step, you can only move **right** or **down** in the grid.
+
+Your goal is to find the maximum **non-negative** product of a path from the top-left to the bottom-right. Since the answer can be very large, return the maximum product **modulo** $10^9 + 7$. If the maximum product is negative, return `-1`.
+
+---
+
+## Solution Approach: Dynamic Programming
+This problem is a variation of the "Minimum Path Sum" or "Unique Paths" problems, but with a twist: the grid contains **negative numbers**.
+
+### The Core Challenge
+When multiplying numbers, a very small negative number (e.g., $-100$) can become a very large positive number (e.g., $+200$) if it is multiplied by another negative number (e.g., $-2$). Therefore, we cannot simply keep track of the maximum product at each cell.
+
+### The Strategy
+We maintain two DP tables (or one table with two values per cell):
+1.  **`dpMax[i][j]`**: The maximum product to reach cell $(i, j)$.
+2.  **`dpMin[i][j]`**: The minimum product to reach cell $(i, j)$.
+
+**Transitions:**
+* If `grid[i][j]` is **positive**:
+    * `newMax = max(topMax, leftMax) * grid[i][j]`
+    * `newMin = min(topMin, leftMin) * grid[i][j]`
+* If `grid[i][j]` is **negative**:
+    * `newMax = min(topMin, leftMin) * grid[i][j]` (Min $\times$ Neg = Max)
+    * `newMin = max(topMax, leftMax) * grid[i][j]` (Max $\times$ Neg = Min)
+* If `grid[i][j]` is **zero**:
+    * Both max and min become $0$.
+
+### Implementation Note
+We use `long` to store the products during calculation to prevent integer overflow before applying the modulo at the very end.
+
+---
+
+## Complexity Analysis
+
+| Type | Complexity | Motivation |
+| :--- | :--- | :--- |
+| **Time** | $O(m \times n)$ | We iterate through every cell in the $m \times n$ grid exactly once. |
+| **Space** | $O(m \times n)$ | We store two 2D arrays of size $m \times n$ to keep track of max/min products. |
+
+> **Note:** Space complexity can be optimized to $O(n)$ by only storing the current and previous rows.
+
+---
+
+## Java Solution
+
+```java
+class Solution {
+    public int maxProductPath(int[][] grid) {
+        int m = grid.length, n = grid[0].length;
+        long MOD = 1_000_000_007;
+        long[][] dpMax = new long[m][n];
+        long[][] dpMin = new long[m][n];
+
+        dpMax[0][0] = dpMin[0][0] = grid[0][0];
+
+        for (int i = 1; i < m; i++) {
+            dpMax[i][0] = dpMin[i][0] = dpMax[i - 1][0] * grid[i][0];
+        }
+        for (int j = 1; j < n; j++) {
+            dpMax[0][j] = dpMin[0][j] = dpMax[0][j - 1] * grid[0][j];
+        }
+
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (grid[i][j] >= 0) {
+                    dpMax[i][j] = Math.max(dpMax[i - 1][j], dpMax[i][j - 1]) * grid[i][j];
+                    dpMin[i][j] = Math.min(dpMin[i - 1][j], dpMin[i][j - 1]) * grid[i][j];
+                } else {
+                    dpMax[i][j] = Math.min(dpMin[i - 1][j], dpMin[i][j - 1]) * grid[i][j];
+                    dpMin[i][j] = Math.max(dpMax[i - 1][j], dpMax[i][j - 1]) * grid[i][j];
+                }
+            }
+        }
+
+        long res = dpMax[m - 1][n - 1];
+        return res < 0 ? -1 : (int) (res % MOD);
+    }
+}
+```
+
+---
+
+Would you like me to generate a `LICENSE` file or a `CONTRIBUTING.md` to go along with this for your repo?
