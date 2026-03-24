@@ -1,0 +1,59 @@
+Day 302/250:  Construct Product Matrix
+
+Problem Statement #2906
+
+Problem Statement Explantion:
+
+Given a 0-indexed 2D integer matrix grid of size n x m, return a 2D matrix p of the same size, where p[i][j] is the product of all elements in the grid except for the element at grid[i][j].
+
+Since the product can be very large, return the values modulo 12345.
+
+Solution Approach:
+
+The core challenge is to calculate the product of all elements except the current one without using division (since 12345 is not prime and the grid may contain zeros).
+Linearization: We treat the 2D matrix as a single 1D sequence of length L=n×m.
+Prefix Pass: We traverse the grid from top-left to bottom-right. At each cell (i,j), we store the product of all elements encountered before it in the result matrix p.
+Suffix Pass: We traverse the grid in reverse (bottom-right to top-left). We maintain a running product of all elements encountered after the current cell and multiply it by the existing prefix product stored in p.
+Modulo Arithmetic: To prevent integer overflow, we use long for the running product and apply % 12345 at every multiplication step
+
+Here's the Code:
+
+class Solution {
+    public int[][] constructProductMatrix(int[][] grid) {
+        int n = grid.length;
+        int m = grid[0].length;
+        int[][] p = new int[n][m];
+        int MOD = 12345;
+        
+        long runningProduct = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                p[i][j] = (int) (runningProduct % MOD);
+                runningProduct = (runningProduct * (grid[i][j] % MOD)) % MOD;
+            }
+        }
+
+        runningProduct = 1;
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = m - 1; j >= 0; j--) {
+                p[i][j] = (int) ((p[i][j] * runningProduct) % MOD);
+                runningProduct = (runningProduct * (grid[i][j] % MOD)) % MOD;
+            }
+        }
+
+        return p;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(n×m)
+Space Complexity: O(1)
+
+
+
+
+
+
+
