@@ -1,0 +1,86 @@
+Day 303/350: Equal Sum Grid Partition I
+
+Problem Statement #3564
+
+Problem Statement Explantion:
+
+Given an m×n integer grid, determine if it is possible to make exactly one horizontal or vertical cut such that the grid is divided into two non-empty rectangular sections with an equal sum of elements.
+A horizontal cut is made between two adjacent rows.
+A vertical cut is made between two adjacent columns.
+The resulting two sections must both contain at least one cell. 
+
+Solution Approach:
+
+To solve this efficiently, we use the property that if a grid can be split into two equal parts, the sum of one part must be exactly half of the total sum of the grid.
+
+1. Calculate Total Sum
+First, we traverse the entire grid to find the totalSum. 
+If totalSum is odd, it is mathematically impossible to split it into two equal integer sums, so we return false.
+
+2. Check Horizontal Cuts
+We iterate through the rows one by one (from the first row to the second-to-last row). 
+We accumulate the sum of all elements in the current row into a horizontalPrefixSum. 
+After processing each row, we check:
+
+Does horizontalPrefixSum == totalSum / 2?
+If yes, a valid horizontal partition exists.
+
+3. Check Vertical Cuts
+If no horizontal cut is found, we repeat the logic for columns. 
+We iterate through columns (from the first to the second-to-last), accumulating the sum of all elements in the current column into a verticalPrefixSum.
+Does verticalPrefixSum == totalSum / 2?
+If yes, a valid vertical partition exists.
+
+Here's the Code:
+
+class Solution {
+    public boolean canPartitionGrid(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        long totalSum = 0;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                totalSum += grid[i][j];
+            }
+        }
+
+        if (totalSum % 2 != 0) {
+            return false;
+        }
+
+        long target = totalSum / 2;
+
+        long horizontalPrefixSum = 0;
+        for (int i = 0; i < m - 1; i++) {
+            for (int j = 0; j < n; j++) {
+                horizontalPrefixSum += grid[i][j];
+            }
+            if (horizontalPrefixSum == target) {
+                return true;
+            }
+        }
+
+        long verticalPrefixSum = 0;
+        for (int j = 0; j < n - 1; j++) {
+            for (int i = 0; i < m; i++) {
+                verticalPrefixSum += grid[i][j];
+            }
+            if (verticalPrefixSum == target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(m×n)
+Space Complexity: O(1)
+
+
+
+
+
