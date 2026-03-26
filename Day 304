@@ -1,0 +1,106 @@
+Day 304/350: Can Partition Grid
+
+Problem Statement #3548
+
+Problem Statement Explantion:
+
+Given a 2D grid of integers, determine if it is possible to partition the grid into two non-empty rectangular parts by a single vertical or horizontal cut such that:
+
+The sums of the two parts are already equal.
+OR, by moving exactly one element from one part to the other, the sums of the two parts become equal.
+The move must be valid: the element moved from Part A must be added to the sum of Part B (and subtracted from Part A).
+
+Solution Approach:
+
+The core challenge is that a cut can be horizontal or vertical, and the "shiftable" element could be anywhere in the grid. We use two primary techniques to simplify this:
+
+1. Geometric Symmetry (Rotations)
+Instead of writing separate logic for horizontal and vertical cuts, we solve for horizontal cuts only and rotate the grid 90 degree four times. This covers:
+
+Top-down cuts.
+Bottom-up cuts.
+Left-right cuts.
+Right-left cuts.
+
+2. The "Tag" Logic (Prefix Sums)
+For any horizontal cut at row i, let:
+S = Sum of all elements from row 0 to i.
+T = Total sum of the entire grid.
+
+Here's the Code:
+
+class Solution {
+
+    public boolean canPartitionGrid(int[][] grid) {
+        long total = 0;
+        int m = grid.length;
+        int n = grid[0].length;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                total += grid[i][j];
+            }
+        }
+        for (int k = 0; k < 4; k++) {
+            Set<Long> exist = new HashSet<>();
+            exist.add(0L);
+            long sum = 0;
+            m = grid.length;
+            n = grid[0].length;
+            if (m < 2) {
+                grid = rotation(grid);
+                continue;
+            }
+            if (n == 1) {
+                for (int i = 0; i < m - 1; i++) {
+                    sum += grid[i][0];
+                    long tag = sum * 2 - total;
+                    if (tag == 0 || tag == grid[0][0] || tag == grid[i][0]) {
+                        return true;
+                    }
+                }
+                grid = rotation(grid);
+                continue;
+            }
+            for (int i = 0; i < m - 1; i++) {
+                for (int j = 0; j < n; j++) {
+                    exist.add((long) grid[i][j]);
+                    sum += grid[i][j];
+                }
+                long tag = sum * 2 - total;
+                if (i == 0) {
+                    if (
+                        tag == 0 || tag == grid[0][0] || tag == grid[0][n - 1]
+                    ) {
+                        return true;
+                    }
+                    continue;
+                }
+                if (exist.contains(tag)) {
+                    return true;
+                }
+            }
+            grid = rotation(grid);
+        }
+        return false;
+    }
+
+    public int[][] rotation(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int[][] tmp = new int[n][m];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                tmp[j][m - 1 - i] = grid[i][j];
+            }
+        }
+        return tmp;
+    }
+}
+
+Complexity:
+
+Time Complexity:	O(M×N)
+Space Complexity:	O(M×N)
+
+
+
