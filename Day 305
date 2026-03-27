@@ -1,0 +1,50 @@
+Day 305/350: Matrix Similarity After Cyclic Shifts
+
+Probelm Statement #2946
+
+Problem Statement Explantion:
+
+You are given a 0-indexed m×n integer matrix mat and an integer k.
+
+Each row is shifted k times:
+Even-indexed rows (0, 2, 4...) are shifted to the left.
+Odd-indexed rows (1, 3, 5...) are shifted to the right.
+Return true if the matrix and the modified matrix are identical after all shifts, and false otherwise.
+
+Solution Approach:
+
+The core observation is that shifting a row cyclically and expecting it to remain identical is equivalent to checking if the row has a repeating pattern that aligns with the shift amount k.
+
+Simplify k: Since shifting a row of length n by n positions results in the same row, we only care about k(modn).
+Directional Neutrality: Whether we shift an element to the left or to the right, for the matrix to remain "similar," the element at index j must be equal to the element at the position it would be replaced by.
+In a cyclic shift of k, the element at mat[i][j] must match mat[i][(j + k) % n].
+Iteration: We iterate through every cell in the matrix. If any cell mat[i][j] does not match its counterpart at the shifted index, the matrix is not similar.
+
+Here's the Code:
+
+class Solution {
+    public boolean areSimilar(int[][] mat, int k) {
+        int m = mat.length;
+        int n = mat[0].length;
+        k %= n;
+        
+        if (k == 0) return true;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (mat[i][j] != mat[i][(j + k) % n]) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+}
+
+Complexity:
+
+Time Complexity: O(m×n)
+Space Complexity: O(1)
+
+
